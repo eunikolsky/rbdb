@@ -1,7 +1,11 @@
 module Main (main) where
 
 import Data.ByteString qualified as BS
+import Data.List (intercalate)
 import Data.List.NonEmpty qualified as NE
+import Data.Set qualified as Set
+import Data.Void
+import Numeric
 import RockboxDB
 import System.Environment
 import System.Exit
@@ -30,6 +34,19 @@ parseDatabase fp = do
 printDatabase :: Database -> IO ()
 printDatabase = print
 
-showErrorBundle :: (Show e, Show (Token s)) => ParseErrorBundle s e -> String
+showErrorBundle :: Show (Token s) => ParseErrorBundle s Void -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
-  unlines (show <$> NE.toList bundleErrors)
+  unlines (showError <$> NE.toList bundleErrors)
+
+  where
+    showError (TrivialError pos maybeUnexpectedToken expectedTokens) = mconcat
+      [ "Error at byte 0x" <> showHex pos "" <> " (" <> show pos <> "):\n  "
+      , maybe "no unexpected token" showErrorItem maybeUnexpectedToken
+      , "\n  expected tokens: "
+      , intercalate "; " . fmap showErrorItem $ Set.toList expectedTokens
+      ]
+    showError e = error $ "Unexpected fancy error " <> show e
+
+    showErrorItem (Tokens ts) = intercalate ", " $ show <$> NE.toList ts
+    showErrorItem (Label cs) = NE.toList cs
+    showErrorItem EndOfInput = "EndOfInput"

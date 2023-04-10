@@ -23,6 +23,7 @@ executable rbdb
   build-depends:
       base >= 4.7 && < 5
     , bytestring
+    , containers
     , megaparsec
   ghc-options:         -Wall
                        -Wcompat
