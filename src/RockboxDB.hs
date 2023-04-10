@@ -20,6 +20,9 @@ data Database = Database
 dbParser :: Parser Database
 dbParser = do
   _magic <- string "\x0f\x48\x43\x54"
+  -- https://www.rockbox.org/wiki/TagcacheDBFormat#Index_file_format says it's
+  -- the number of bytes after the header, but it's more complicated than that:
+  -- https://www.rockbox.org/mail/archive/rockbox-dev-archive-2008-10/0070.shtml
   _dataSize <- word32
   numEntries <- word32
   _serial <- word32
