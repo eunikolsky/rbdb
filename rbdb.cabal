@@ -22,9 +22,31 @@ executable rbdb
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
-                       -Wincomplete-record-updates
-                       -Wincomplete-uni-patterns
+                       -Wnoncanonical-monad-instances
+                       -fhide-source-paths
                        -Wmissing-export-lists
-                       -Wmissing-home-modules
                        -Wpartial-fields
                        -Wredundant-constraints
+                       -Wmissing-deriving-strategies
+                       -Wunused-packages
+                       -Werror=empty-enumerations
+                       -Werror=missing-methods
+                       -Werror=missing-fields
+                       -Werror=incomplete-patterns
+                       -Werror=incomplete-record-updates
+                       -Werror=incomplete-uni-patterns
+                       -Werror=missing-home-modules
+  default-extensions:
+      BangPatterns
+    , BinaryLiterals
+    , DeriveGeneric
+    , DerivingStrategies
+    , GeneralizedNewtypeDeriving
+    , ImportQualifiedPost
+    , NamedFieldPuns
+    , NumericUnderscores
+    , OverloadedStrings
+    , ScopedTypeVariables
+    , TypeApplications
+  -- most of the list is copied from summoner
+  -- https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
