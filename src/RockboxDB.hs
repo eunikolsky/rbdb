@@ -32,5 +32,11 @@ dbParser = do
   let entrySizeWords = 22
   void $ count (numEntries * entrySizeWords) word32
 
-  eof
+  {-
+   - not expecting an EOF because of the mismatch of the declared data size,
+   - number of entries and the filesize:
+   - # of entries in bytes < filesize < declared data size
+   -}
+  -- eof
+
   pure $ Database ()
