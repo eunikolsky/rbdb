@@ -13,8 +13,11 @@ import Text.Megaparsec.Byte.Binary
 
 type Parser = Parsec Void ByteString
 
--- | Parsed rockbox database.
-newtype Database = Database ()
+newtype EntriesCount = EntriesCount Word32
+  deriving stock Show
+
+-- | Parsed rockbox database, contains the number of entries.
+newtype Database = Database EntriesCount
   deriving stock Show
 
 word32 :: Parser Word32
@@ -24,13 +27,13 @@ dbParser :: Parser Database
 dbParser = do
   _magic <- string "\x0f\x48\x43\x54"
   _dataSize <- word32
-  numEntries <- fromIntegral <$> word32
+  numEntries <- word32
   _serial <- word32
   _commitId <- word32
   _isDirty <- word32
 
   let entrySizeWords = 22
-  void $ count (numEntries * entrySizeWords) word32
+  void $ count (fromIntegral numEntries * entrySizeWords) word32
 
   {-
    - not expecting an EOF because of the mismatch of the declared data size,
@@ -39,4 +42,4 @@ dbParser = do
    -}
   -- eof
 
-  pure $ Database ()
+  pure $ Database $ EntriesCount numEntries
