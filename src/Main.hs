@@ -45,8 +45,15 @@ showErrorBundle ParseErrorBundle { bundleErrors } =
       , "\n  expected tokens: "
       , intercalate "; " . fmap showErrorItem $ Set.toList expectedTokens
       ]
-    showError e = error $ "Unexpected fancy error " <> show e
+    showError (FancyError pos fancyErrors) = mconcat
+      [ "Error at byte 0x" <> showHex pos "" <> " (" <> show pos <> "):\n  "
+      , intercalate "; " . fmap showErrorFancy $ Set.toList fancyErrors
+      ]
 
     showErrorItem (Tokens ts) = intercalate ", " $ show <$> NE.toList ts
     showErrorItem (Label cs) = NE.toList cs
     showErrorItem EndOfInput = "EndOfInput"
+
+    showErrorFancy (ErrorFail s) = s
+    showErrorFancy (ErrorIndentation {}) = error "Unexpected indentation error"
+    showErrorFancy (ErrorCustom e) = absurd e
