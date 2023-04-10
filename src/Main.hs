@@ -7,9 +7,9 @@ import Data.Set qualified as Set
 import Data.Void
 import Numeric
 import RockboxDB
+import RockboxDB.Prelude
 import System.Environment
 import System.Exit
-import Text.Megaparsec
 
 main :: IO ()
 main = getIndexFilepath >>= parseDatabase >>= printDatabase
@@ -34,7 +34,7 @@ parseDatabase fp = do
 printDatabase :: Database -> IO ()
 printDatabase = print
 
-showErrorBundle :: Show (Token s) => ParseErrorBundle s Void -> String
+showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
   unlines (showError <$> NE.toList bundleErrors)
 
