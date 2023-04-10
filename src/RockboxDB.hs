@@ -31,12 +31,8 @@ dbParser = do
 
   entries <- count (fromIntegral numEntries) entryParser
 
-  {-
-   - not expecting an EOF because of the mismatch of the declared data size,
-   - number of entries and the filesize:
-   - # of entries in bytes < filesize < declared data size
-   -}
-  -- eof
+  -- TODO also verify data size
+  eof
 
   pure $ Database
     { entriesCount = genericLength entries
