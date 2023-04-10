@@ -3,16 +3,10 @@ module RockboxDB
   , dbParser
   ) where
 
-import Data.ByteString (ByteString)
 import Data.List (genericLength)
-import Data.Void
-import Data.Word
 import RockboxDB.Entry
-import Text.Megaparsec
+import RockboxDB.Prelude
 import Text.Megaparsec.Byte
-import Text.Megaparsec.Byte.Binary
-
-type Parser = Parsec Void ByteString
 
 -- | Parsed rockbox database.
 data Database = Database
@@ -22,9 +16,6 @@ data Database = Database
   -- ^ the number of not deleted entries
   }
   deriving stock Show
-
-word32 :: Parser Word32
-word32 = word32le
 
 dbParser :: Parser Database
 dbParser = do
