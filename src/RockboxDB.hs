@@ -23,13 +23,14 @@ word32 = word32le
 dbParser :: Parser Database
 dbParser = do
   _magic <- string "\x0f\x48\x43\x54"
-  dataSize <- fromIntegral <$> word32
-  _numEntries <- word32
+  _dataSize <- word32
+  numEntries <- fromIntegral <$> word32
   _serial <- word32
   _commitId <- word32
   _isDirty <- word32
 
-  void $ count dataSize word8
+  let entrySizeWords = 22
+  void $ count (numEntries * entrySizeWords) word32
 
   eof
   pure $ Database ()
