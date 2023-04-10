@@ -3,21 +3,24 @@ module RockboxDB
   , dbParser
   ) where
 
-import Control.Monad
 import Data.ByteString (ByteString)
+import Data.List (genericLength)
 import Data.Void
 import Data.Word
+import RockboxDB.Entry
 import Text.Megaparsec
 import Text.Megaparsec.Byte
 import Text.Megaparsec.Byte.Binary
 
 type Parser = Parsec Void ByteString
 
-newtype EntriesCount = EntriesCount Word32
-  deriving stock Show
-
--- | Parsed rockbox database, contains the number of entries.
-newtype Database = Database EntriesCount
+-- | Parsed rockbox database.
+data Database = Database
+  { entriesCount :: Word32
+  -- ^ the total number of entries; `Word32` because the number can't be negative
+  , validEntriesCount :: Word32
+  -- ^ the number of not deleted entries
+  }
   deriving stock Show
 
 word32 :: Parser Word32
@@ -32,8 +35,7 @@ dbParser = do
   _commitId <- word32
   _isDirty <- word32
 
-  let entrySizeWords = 22
-  void $ count (fromIntegral numEntries * entrySizeWords) word32
+  entries <- count (fromIntegral numEntries) entryParser
 
   {-
    - not expecting an EOF because of the mismatch of the declared data size,
@@ -42,4 +44,7 @@ dbParser = do
    -}
   -- eof
 
-  pure $ Database $ EntriesCount numEntries
+  pure $ Database
+    { entriesCount = genericLength entries
+    , validEntriesCount = genericLength $ filter (not . entryFlagIsDeleted . getFlags) entries
+    }
