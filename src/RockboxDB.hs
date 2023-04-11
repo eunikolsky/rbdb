@@ -51,5 +51,5 @@ dbParser = do
 
   pure $ Database
     { entriesCount = genericLength entries
-    , validEntriesCount = genericLength $ filter (not . entryFlagIsDeleted . getFlags) entries
+    , validEntriesCount = genericLength $ filter (not . entryFlagIsDeleted . flags) entries
     }

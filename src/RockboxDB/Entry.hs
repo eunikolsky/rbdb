@@ -17,7 +17,7 @@ entryFlagIsDeleted :: EntryFlags -> Bool
 entryFlagIsDeleted (EntryFlags w) = (w .&. 0x1) == 0x1
 
 -- | Parsed entry from rockbox database's index file.
-newtype Entry = Entry { getFlags :: EntryFlags }
+newtype Entry = Entry { flags :: EntryFlags }
 
 entryParser :: Parser Entry
 entryParser = do
