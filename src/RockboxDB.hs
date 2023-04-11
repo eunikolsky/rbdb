@@ -1,6 +1,7 @@
 module RockboxDB
-  ( Database
+  ( Database(..)
   , DatabaseDir(..)
+  , Entry(..)
   , parse
   ) where
 
@@ -20,7 +21,7 @@ newtype Database = Database { validEntries :: [Entry] }
   deriving stock Show
 
 -- | Parsed valid rockbox database entry.
-newtype Entry = Entry FilePath
+newtype Entry = Entry { filePath :: FilePath }
   deriving newtype Show
 
 -- | Directory of rockbox database, which should contain at least

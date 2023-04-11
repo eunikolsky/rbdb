@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Data.List (intercalate)
+import Data.List (intercalate, isPrefixOf)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
 import Data.Void
@@ -11,7 +11,7 @@ import System.Environment
 import System.Exit
 
 main :: IO ()
-main = getIndexFilepath >>= parseDatabase >>= printDatabase
+main = getIndexFilepath >>= parseDatabase >>= printPodcasts
 
 getIndexFilepath :: IO DatabaseDir
 getIndexFilepath = do
@@ -30,8 +30,9 @@ parseDatabase dir = do
     -- https://github.com/mrkkrp/megaparsec/issues/465
     Left errBundle -> die $ showErrorBundle errBundle
 
-printDatabase :: Database -> IO ()
-printDatabase = print
+printPodcasts :: Database -> IO ()
+printPodcasts = mapM_ putStrLn . filter isPodcast . fmap filePath . Database.validEntries
+  where isPodcast = ("/podcasts" `isPrefixOf`)
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
