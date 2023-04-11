@@ -7,6 +7,7 @@ module RockboxDB
 import Data.ByteString qualified as BS
 import Data.List (genericLength)
 import RockboxDB.IndexEntry
+import RockboxDB.IndexEntry.Flags qualified as Flags
 import RockboxDB.Prelude
 import System.FilePath
 import Text.Megaparsec.Byte
@@ -51,5 +52,5 @@ dbParser = do
 
   pure $ Database
     { entriesCount = genericLength entries
-    , validEntriesCount = genericLength $ filter (not . entryFlagIsDeleted . flags) entries
+    , validEntriesCount = genericLength $ filter (not . Flags.isDeleted . flags) entries
     }

@@ -20,6 +20,7 @@ executable rbdb
   other-modules:
       RockboxDB
     , RockboxDB.IndexEntry
+    , RockboxDB.IndexEntry.Flags
     , RockboxDB.Prelude
   default-language:    Haskell2010
   build-depends:
