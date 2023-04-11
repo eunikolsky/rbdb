@@ -1,6 +1,6 @@
 module RockboxDB.IndexEntry
   ( IndexEntry(..)
-  , entryParser
+  , parser
   ) where
 
 import RockboxDB.IndexEntry.Flags
@@ -11,8 +11,8 @@ import RockboxDB.Prelude
 -- such as offset into other tag files.
 newtype IndexEntry = IndexEntry { flags :: Flags }
 
-entryParser :: Parser IndexEntry
-entryParser = do
+parser :: Parser IndexEntry
+parser = do
   _items <- count 22 word32
   flagsWord <- word32
   flags <- either fail pure $ mkFlags flagsWord

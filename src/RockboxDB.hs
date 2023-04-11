@@ -6,7 +6,7 @@ module RockboxDB
 
 import Data.ByteString qualified as BS
 import Data.List (genericLength)
-import RockboxDB.IndexEntry
+import RockboxDB.IndexEntry qualified as IndexEntry
 import RockboxDB.IndexEntry.Flags qualified as Flags
 import RockboxDB.Prelude
 import System.FilePath
@@ -30,11 +30,11 @@ parse :: DatabaseDir -> IO (ParseErrorOr Database)
 parse (DatabaseDir dir) = do
   let indexFile = dir </> "database_idx.tcd"
   bytes <- BS.readFile indexFile
-  pure $ runParser dbParser indexFile bytes
+  pure $ runParser parser indexFile bytes
 
 -- The parser isn't exported because the database is split into multiple files.
-dbParser :: Parser Database
-dbParser = do
+parser :: Parser Database
+parser = do
   _magic <- string "\x0f\x48\x43\x54"
   -- https://www.rockbox.org/wiki/TagcacheDBFormat#Index_file_format says it's
   -- the number of bytes after the header, but it's more complicated than that:
@@ -45,12 +45,13 @@ dbParser = do
   _commitId <- word32
   _isDirty <- word32
 
-  entries <- count (fromIntegral numEntries) entryParser
+  entries <- count (fromIntegral numEntries) IndexEntry.parser
 
   -- TODO also verify data size
   eof
 
   pure $ Database
     { entriesCount = genericLength entries
-    , validEntriesCount = genericLength $ filter (not . Flags.isDeleted . flags) entries
+    , validEntriesCount =
+        genericLength $ filter (not . Flags.isDeleted . IndexEntry.flags) entries
     }
