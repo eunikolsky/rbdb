@@ -1,12 +1,11 @@
 module Main (main) where
 
-import Data.ByteString qualified as BS
 import Data.List (intercalate)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
 import Data.Void
 import Numeric
-import RockboxDB
+import RockboxDB as Database
 import RockboxDB.Prelude
 import System.Environment
 import System.Exit
@@ -14,17 +13,17 @@ import System.Exit
 main :: IO ()
 main = getIndexFilepath >>= parseDatabase >>= printDatabase
 
-getIndexFilepath :: IO FilePath
+getIndexFilepath :: IO DatabaseDir
 getIndexFilepath = do
   args <- getArgs
   case args of
-    [fp] -> pure fp
-    _ -> die "Provide the path to the rockbox database index file (database_idx.tcd)"
+    [fp] -> pure $ DatabaseDir fp
+    _ -> die "Provide the path to the rockbox database directory (with `database_*.tcd`)"
 
-parseDatabase :: FilePath -> IO Database
-parseDatabase fp = do
-  bytes <- BS.readFile fp
-  case runParser dbParser fp bytes of
+parseDatabase :: DatabaseDir -> IO Database
+parseDatabase dir = do
+  eitherDB <- Database.parse dir
+  case eitherDB of
     Right db -> pure db
     -- errorBundlePretty prints the data where the failure occurs, which doesn't
     -- work well with binary data by default; hex dump would be much better

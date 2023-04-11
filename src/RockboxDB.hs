@@ -1,11 +1,14 @@
 module RockboxDB
   ( Database
-  , dbParser
+  , DatabaseDir(..)
+  , parse
   ) where
 
+import Data.ByteString qualified as BS
 import Data.List (genericLength)
 import RockboxDB.Entry
 import RockboxDB.Prelude
+import System.FilePath
 import Text.Megaparsec.Byte
 
 -- | Parsed rockbox database.
@@ -17,6 +20,18 @@ data Database = Database
   }
   deriving stock Show
 
+-- | Directory of rockbox database, which should contain at least
+-- `database_idx.tcd` and `database_4.tcd`.
+newtype DatabaseDir = DatabaseDir FilePath
+
+-- | Parses the rockbox database from the given directory.
+parse :: DatabaseDir -> IO (ParseErrorOr Database)
+parse (DatabaseDir dir) = do
+  let indexFile = dir </> "database_idx.tcd"
+  bytes <- BS.readFile indexFile
+  pure $ runParser dbParser indexFile bytes
+
+-- The parser isn't exported because the database is split into multiple files.
 dbParser :: Parser Database
 dbParser = do
   _magic <- string "\x0f\x48\x43\x54"
