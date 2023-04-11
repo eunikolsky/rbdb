@@ -19,7 +19,7 @@ executable rbdb
   main-is:             Main.hs
   other-modules:
       RockboxDB
-    , RockboxDB.Entry
+    , RockboxDB.IndexEntry
     , RockboxDB.Prelude
   default-language:    Haskell2010
   build-depends:

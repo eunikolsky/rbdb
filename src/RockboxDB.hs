@@ -6,7 +6,7 @@ module RockboxDB
 
 import Data.ByteString qualified as BS
 import Data.List (genericLength)
-import RockboxDB.Entry
+import RockboxDB.IndexEntry
 import RockboxDB.Prelude
 import System.FilePath
 import Text.Megaparsec.Byte
