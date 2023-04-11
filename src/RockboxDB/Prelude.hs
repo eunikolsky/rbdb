@@ -14,12 +14,15 @@ module RockboxDB.Prelude
   , module Data.Void
   , module Data.Word
   , module Text.Megaparsec
+  , module Text.Megaparsec.Byte
+  , module Text.Megaparsec.Byte.Binary
   ) where
 
 import Data.ByteString (ByteString)
 import Data.Void
 import Data.Word
 import Text.Megaparsec hiding (ParseError, parse)
+import Text.Megaparsec.Byte
 import Text.Megaparsec.Byte.Binary
 
 -- | The parser type for binary rockbox databases.

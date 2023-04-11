@@ -5,21 +5,23 @@ module RockboxDB
   ) where
 
 import Data.ByteString qualified as BS
-import Data.List (genericLength)
+import Data.IntMap ((!?))
+import Data.Maybe
+import Data.Text qualified as T
+import RockboxDB.IndexEntry (IndexEntry(..))
 import RockboxDB.IndexEntry qualified as IndexEntry
-import RockboxDB.IndexEntry.Flags qualified as Flags
 import RockboxDB.Prelude
+import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
+import RockboxDB.TagFile.Filename qualified as Filename (getFilename, parser)
 import System.FilePath
-import Text.Megaparsec.Byte
 
--- | Parsed rockbox database.
-data Database = Database
-  { entriesCount :: Word32
-  -- ^ the total number of entries; `Word32` because the number can't be negative
-  , validEntriesCount :: Word32
-  -- ^ the number of not deleted entries
-  }
+-- | Parsed rockbox database, consists of only non-deleted entries.
+newtype Database = Database { validEntries :: [Entry] }
   deriving stock Show
+
+-- | Parsed valid rockbox database entry.
+newtype Entry = Entry FilePath
+  deriving newtype Show
 
 -- | Directory of rockbox database, which should contain at least
 -- `database_idx.tcd` and `database_4.tcd`.
@@ -29,12 +31,18 @@ newtype DatabaseDir = DatabaseDir FilePath
 parse :: DatabaseDir -> IO (ParseErrorOr Database)
 parse (DatabaseDir dir) = do
   let indexFile = dir </> "database_idx.tcd"
-  bytes <- BS.readFile indexFile
-  pure $ runParser parser indexFile bytes
+      filenameTagFile = dir </> "database_4.tcd"
+
+  indexBytes <- BS.readFile indexFile
+  filenameBytes <- BS.readFile filenameTagFile
+
+  pure $ do -- in `ParseErrorOr`
+    filenames <- runParser Filename.parser filenameTagFile filenameBytes
+    runParser (parser filenames) indexFile indexBytes
 
 -- The parser isn't exported because the database is split into multiple files.
-parser :: Parser Database
-parser = do
+parser :: TagFile.Filenames -> Parser Database
+parser (TagFile.Filenames filenameMap) = do
   _magic <- string "\x0f\x48\x43\x54"
   -- https://www.rockbox.org/wiki/TagcacheDBFormat#Index_file_format says it's
   -- the number of bytes after the header, but it's more complicated than that:
@@ -45,13 +53,15 @@ parser = do
   _commitId <- word32
   _isDirty <- word32
 
-  entries <- count (fromIntegral numEntries) IndexEntry.parser
+  validEntries <- fmap catMaybes . count (fromIntegral numEntries) $ do
+    IndexEntry { maybeFilenameOffset } <- IndexEntry.parser
+    pure $ do
+      filenameOffset <- maybeFilenameOffset
+      case filenameMap !? fromIntegral filenameOffset of
+        Just filename -> Just . Entry . T.unpack . Filename.getFilename $ filename
+        Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
 
   -- TODO also verify data size
   eof
 
-  pure $ Database
-    { entriesCount = genericLength entries
-    , validEntriesCount =
-        genericLength $ filter (not . Flags.isDeleted . IndexEntry.flags) entries
-    }
+  pure $ Database { validEntries }
