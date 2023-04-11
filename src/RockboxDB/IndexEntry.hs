@@ -3,7 +3,6 @@ module RockboxDB.IndexEntry
   , entryParser
   ) where
 
-import Control.Monad
 import RockboxDB.IndexEntry.Flags
 import RockboxDB.Prelude
 
@@ -15,6 +14,6 @@ newtype IndexEntry = IndexEntry { flags :: Flags }
 entryParser :: Parser IndexEntry
 entryParser = do
   _items <- count 22 word32
-  flags <- Flags <$> word32
-  when (flags > 31) $ fail $ "Unexpected flags value (should be < 32): " <> show flags
+  flagsWord <- word32
+  flags <- either fail pure $ mkFlags flagsWord
   pure $ IndexEntry flags
