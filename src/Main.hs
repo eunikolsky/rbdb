@@ -33,8 +33,15 @@ parseDatabase dir = do
 
 printPodcasts :: Database -> IO ()
 -- TODO color podcast and episode?
-printPodcasts = mapM_ print . filter isPodcast . Database.validEntries
-  where isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
+printPodcasts
+  = mapM_ print
+  . filter (\e -> isPlayed e && isPodcast e)
+  . Database.validEntries
+
+  where
+    isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
+    -- note: this doesn't necessarily mean that a file has been played entirely
+    isPlayed = (> 0) . Entry.playCount
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
