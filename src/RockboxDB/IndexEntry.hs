@@ -15,13 +15,27 @@ data IndexEntry = IndexEntry
   { flags :: Flags
   , maybeFilenameOffset :: Maybe Word32
   -- ^ the offset is present only for non-deleted entries
+  , playCount :: Word32
+  , playTime :: Word32
+  , lastPlayed :: Word32
+  , mtime :: Word32
+  , lastOffset :: Word32
+  , lastElapsed :: Word32
   }
 
 parser :: Parser IndexEntry
 parser = do
-  void $ count 4 word32
+  skip 4
   filenameOffset <- word32
-  void $ count 17 word32
+  skip 9
+  playCount <- word32
+  skip 1
+  playTime <- word32
+  lastPlayed <- word32
+  skip 1
+  mtime <- word32
+  lastOffset <- word32
+  lastElapsed <- word32
 
   flagsWord <- word32
   flags <- either fail pure $ mkFlags flagsWord
@@ -29,4 +43,13 @@ parser = do
   pure $ IndexEntry
     { flags
     , maybeFilenameOffset = if Flags.isDeleted flags then Nothing else Just filenameOffset
+    , playCount
+    , playTime
+    , lastPlayed
+    , mtime
+    , lastOffset
+    , lastElapsed
     }
+
+skip :: Int -> Parser ()
+skip n = void $ count n word32
