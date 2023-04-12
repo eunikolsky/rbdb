@@ -7,7 +7,6 @@ module RockboxDB.Entry
 
 import Data.IntMap ((!?))
 import Data.Text qualified as T
-import Numeric
 import Numeric.Natural
 import RockboxDB.IndexEntry qualified as IndexEntry
 import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
@@ -19,11 +18,28 @@ import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
 data Entry = Entry
   { filePath :: FilePath
   , playCount :: Natural
+
   , playTime :: Natural
-  , lastPlayed :: Word32 -- FIXME decode into a time
-  , modTime :: Word32 -- FIXME decode into a time
+  -- ^ unclear what it means
+  -- "This field does not work as per the others, but is used solely in the autoscore calculation"
+  -- see the "Supported Tag Fields" table at
+  -- https://www.rockbox.org/wiki/DataBase#tagnavi.config_v2.0_Syntax
+
+  , playOrder :: Natural
+  -- ^ `lastPlayed` is play order, higher number is more recent; this meaning is
+  -- based on the "Example 3 - Podcasts, Old and New" at
+  -- https://www.rockbox.org/wiki/DataBase#Examples
+
+  -- TODO modtime decodes into years around 2030, which is not correct
+  -- , modTime :: Word32
+
   , lastOffset :: Word32
+  -- ^ "Last offset into the file for automatic resume"
+  -- https://www.rockbox.org/wiki/TagcacheDBFormat
   , lastElapsed :: Word32
+  -- ^ this has to do with "time-based resume and playback start"
+  -- source: https://git.rockbox.org/cgit/rockbox.git/commit/?id=31b712286721dd606940c7b557d03e3f714b9604
+
   , flags :: IndexEntry.Flags -- FIXME more suitable type
   }
 
@@ -32,8 +48,8 @@ instance Show Entry where
     [ "File ", filePath
     , ": ", show playCount, " plays"
     , ", playTime=", show playTime
-    , ", lastPlayed=", show lastPlayed
-    , ", modTime=0x", showHex modTime ""
+    , ", playOrder=", show playOrder
+    --, ", modTime=0x", showHex modTime ""
     , ", lastOffset=", show lastOffset
     , ", lastElapsed=", show lastElapsed
     , ", flags=", show flags
@@ -50,8 +66,8 @@ parser (TagFile.Filenames filenameMap) = do
         { filePath = T.unpack . Filename.getFilename $ filename
         , playCount = fromIntegral $ IndexEntry.playCount ie
         , playTime = fromIntegral $ IndexEntry.playTime ie
-        , lastPlayed = IndexEntry.lastPlayed ie
-        , modTime = IndexEntry.mtime ie
+        , playOrder = fromIntegral $ IndexEntry.lastPlayed ie
+        --, modTime = IndexEntry.mtime ie
         , lastOffset = IndexEntry.lastOffset ie
         , lastElapsed = IndexEntry.lastElapsed ie
         , flags = IndexEntry.flags ie
