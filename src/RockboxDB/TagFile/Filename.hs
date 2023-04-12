@@ -1,6 +1,7 @@
 module RockboxDB.TagFile.Filename
   ( Filename(..)
   , Filenames(..)
+  , headerSize
   , parser
   ) where
 
@@ -37,3 +38,7 @@ parser = do
   eof
 
   pure . Filenames $ IntMap.fromList indexedTexts
+
+-- | Header size in bytes.
+headerSize :: Num a => a
+headerSize = 3 * 4

@@ -29,6 +29,7 @@ executable rbdb
     , bytestring
     , containers
     , filepath
+    , directory
     , megaparsec
     , text
   ghc-options:         -Wall
