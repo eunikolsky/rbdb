@@ -17,7 +17,7 @@ data IndexEntry = IndexEntry
   -- ^ the offset is present only for non-deleted entries
   , lengthMs :: Word32
   , playCount :: Word32
-  , playTime :: Word32
+  , playTimeMs :: Word32
   , lastPlayed :: Word32
   , mtime :: Word32
   , lastOffset :: Word32
@@ -32,7 +32,7 @@ parser = do
   lengthMs <- word32
   playCount <- word32
   skip 1
-  playTime <- word32
+  playTimeMs <- word32
   lastPlayed <- word32
   skip 1
   mtime <- word32
@@ -47,7 +47,7 @@ parser = do
     , maybeFilenameOffset = if Flags.isDeleted flags then Nothing else Just filenameOffset
     , lengthMs
     , playCount
-    , playTime
+    , playTimeMs
     , lastPlayed
     , mtime
     , lastOffset

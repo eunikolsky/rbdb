@@ -21,7 +21,7 @@ data Entry = Entry
   , duration :: NominalDiffTime
   , playCount :: Natural
 
-  , playTime :: Natural
+  , playTime :: NominalDiffTime
   -- ^ unclear what it means
   -- "This field does not work as per the others, but is used solely in the autoscore calculation"
   -- see the "Supported Tag Fields" table at
@@ -69,7 +69,7 @@ parser (TagFile.Filenames filenameMap) = do
         { filePath = T.unpack . Filename.getFilename $ filename
         , duration = msToLength $ IndexEntry.lengthMs ie
         , playCount = fromIntegral $ IndexEntry.playCount ie
-        , playTime = fromIntegral $ IndexEntry.playTime ie
+        , playTime = msToLength $ IndexEntry.playTimeMs ie
         , playOrder = fromIntegral $ IndexEntry.lastPlayed ie
         --, modTime = IndexEntry.mtime ie
         , lastOffset = IndexEntry.lastOffset ie
