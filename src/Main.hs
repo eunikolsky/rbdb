@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Data.List (intercalate, isPrefixOf)
+import Data.List (intercalate, isPrefixOf, sortOn)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
 import Data.Void
@@ -35,6 +35,7 @@ printPodcasts :: Database -> IO ()
 -- TODO color podcast and episode?
 printPodcasts
   = mapM_ print
+  . lessRecentFirst
   . filter (\e -> isPlayed e && isPodcast e)
   . Database.validEntries
 
@@ -42,6 +43,7 @@ printPodcasts
     isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
+    lessRecentFirst = sortOn Entry.playOrder
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
