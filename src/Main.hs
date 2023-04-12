@@ -31,6 +31,7 @@ parseDatabase dir = do
     Left errBundle -> die $ showErrorBundle errBundle
 
 printPodcasts :: Database -> IO ()
+-- TODO color podcast and episode?
 printPodcasts = mapM_ putStrLn . filter isPodcast . fmap filePath . Database.validEntries
   where isPodcast = ("/podcasts" `isPrefixOf`)
 
