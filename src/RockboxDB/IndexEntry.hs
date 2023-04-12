@@ -34,8 +34,8 @@ parser = do
   lastPlayed <- word32
   skip 1
   mtime <- word32
-  lastOffset <- word32
   lastElapsed <- word32
+  lastOffset <- word32
 
   flagsWord <- word32
   flags <- either fail pure $ mkFlags flagsWord
