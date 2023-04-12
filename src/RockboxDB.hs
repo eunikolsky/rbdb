@@ -46,7 +46,7 @@ parse dbDir@(DatabaseDir dir) = do
 
 -- The parser isn't exported because the database is split into multiple files.
 parser :: Int -> TagFile.Filenames -> Parser Database
-parser expectedDataSize (TagFile.Filenames filenameMap) = do
+parser expectedDataSize filenames = do
   _magic <- string "\x0f\x48\x43\x54"
   dataSize <- word32
   when (expectedDataSize /= fromIntegral dataSize) $ fail $ mconcat
@@ -57,17 +57,22 @@ parser expectedDataSize (TagFile.Filenames filenameMap) = do
   _commitId <- word32
   _isDirty <- word32
 
-  validEntries <- fmap catMaybes . count (fromIntegral numEntries) $ do
-    IndexEntry { maybeFilenameOffset } <- IndexEntry.parser
-    pure $ do
-      filenameOffset <- maybeFilenameOffset
-      case filenameMap !? fromIntegral filenameOffset of
-        Just filename -> Just . Entry . T.unpack . Filename.getFilename $ filename
-        Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
+  validEntries <- fmap catMaybes . count (fromIntegral numEntries) $
+    validEntryParser filenames
 
   eof
 
   pure $ Database { validEntries }
+
+-- returns Nothing if the entry is invalid (was deleted)
+validEntryParser :: TagFile.Filenames -> Parser (Maybe Entry)
+validEntryParser (TagFile.Filenames filenameMap) = do
+  IndexEntry { maybeFilenameOffset } <- IndexEntry.parser
+  pure $ do
+    filenameOffset <- maybeFilenameOffset
+    case filenameMap !? fromIntegral filenameOffset of
+      Just filename -> Just . Entry . T.unpack . Filename.getFilename $ filename
+      Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
 
 -- | Calculates the expected data size in the index file based on the filesizes
 -- of almost all the database files.
