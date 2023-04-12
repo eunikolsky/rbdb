@@ -34,4 +34,6 @@ parser = do
 
     pure (offset, Filename . TE.decodeUtf8 . BS.pack $ bytes)
 
+  eof
+
   pure . Filenames $ IntMap.fromList indexedTexts
