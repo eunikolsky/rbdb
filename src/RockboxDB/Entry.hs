@@ -27,6 +27,11 @@ data Entry = Entry
   -- see the "Supported Tag Fields" table at
   -- https://www.rockbox.org/wiki/DataBase#tagnavi.config_v2.0_Syntax
 
+  , progress :: Double
+  -- ^ played progress, should be `[0; 1]`, but sometimes it's bigger than `1`;
+  -- this is a derived field: `playTime / duration`;
+  -- a simplified version of rockbox's autoscore: `100*playtime/length/playcount`
+
   , playOrder :: Natural
   -- ^ `lastPlayed` is play order, higher number is more recent; this meaning is
   -- based on the "Example 3 - Podcasts, Old and New" at
@@ -48,8 +53,9 @@ data Entry = Entry
 instance Show Entry where
   show Entry{..} = mconcat
     [ "File ", filePath
-    , " (", show duration, ")"
-    , ": ", show playCount, " plays"
+    , " (", show duration
+    , ", ", show @Int . round $ progress * 100, "% played): "
+    , show playCount, " plays"
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
     --, ", modTime=0x", showHex modTime ""
@@ -64,17 +70,21 @@ parser (TagFile.Filenames filenameMap) = do
   ie <- IndexEntry.parser
   pure $ do
     filenameOffset <- IndexEntry.maybeFilenameOffset ie
+    let duration = msToLength $ IndexEntry.lengthMs ie
+    let playTime = msToLength $ IndexEntry.playTimeMs ie
     case filenameMap !? fromIntegral filenameOffset of
       Just filename -> Just $ Entry
         { filePath = T.unpack . Filename.getFilename $ filename
-        , duration = msToLength $ IndexEntry.lengthMs ie
+        , duration
         , playCount = fromIntegral $ IndexEntry.playCount ie
-        , playTime = msToLength $ IndexEntry.playTimeMs ie
+        , playTime
         , playOrder = fromIntegral $ IndexEntry.lastPlayed ie
         --, modTime = IndexEntry.mtime ie
         , lastOffset = IndexEntry.lastOffset ie
         , lastElapsed = IndexEntry.lastElapsed ie
         , flags = IndexEntry.flags ie
+
+        , progress = realToFrac $ playTime / duration
         }
 
       Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
