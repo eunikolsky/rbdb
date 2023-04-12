@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module RockboxDB.Entry
   ( Entry(..)
   , parser
@@ -5,6 +7,7 @@ module RockboxDB.Entry
 
 import Data.IntMap ((!?))
 import Data.Text qualified as T
+import Numeric
 import Numeric.Natural
 import RockboxDB.IndexEntry qualified as IndexEntry
 import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
@@ -23,7 +26,18 @@ data Entry = Entry
   , lastElapsed :: Word32
   , flags :: IndexEntry.Flags -- FIXME more suitable type
   }
-  deriving stock Show
+
+instance Show Entry where
+  show Entry{..} = mconcat
+    [ "File ", filePath
+    , ": ", show playCount, " plays"
+    , ", playTime=", show playTime
+    , ", lastPlayed=", show lastPlayed
+    , ", modTime=0x", showHex modTime ""
+    , ", lastOffset=", show lastOffset
+    , ", lastElapsed=", show lastElapsed
+    , ", flags=", show flags
+    ]
 
 -- returns Nothing if the entry is invalid (was deleted)
 parser :: TagFile.Filenames -> Parser (Maybe Entry)
