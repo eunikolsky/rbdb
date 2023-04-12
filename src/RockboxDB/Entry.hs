@@ -22,15 +22,20 @@ data Entry = Entry
   , playCount :: Natural
 
   , playTime :: NominalDiffTime
-  -- ^ unclear what it means
+  -- ^ total play time of this file; note that this is not played duration within
+  -- the file — it can be higher than `duration`, apparently in cases when you
+  -- listen to the (parts of the) file multiple times
   -- "This field does not work as per the others, but is used solely in the autoscore calculation"
   -- see the "Supported Tag Fields" table at
   -- https://www.rockbox.org/wiki/DataBase#tagnavi.config_v2.0_Syntax
 
   , progress :: Double
-  -- ^ played progress, should be `[0; 1]`, but sometimes it's bigger than `1`;
-  -- this is a derived field: `playTime / duration`;
+  -- ^ played progress, restricted to `[0; 1]`;
+  -- this is a derived field: `playTime / duration`, no more than `1`;
   -- a simplified version of rockbox's autoscore: `100*playtime/length/playcount`
+  -- given that bigger `playTime` doesn't necessarily mean playing later in the
+  -- file (it can mean replaying the beginning again and again), this field is
+  -- only an approximation of the real played progress
 
   , playOrder :: Natural
   -- ^ `lastPlayed` is play order, higher number is more recent; this meaning is
@@ -84,10 +89,13 @@ parser (TagFile.Filenames filenameMap) = do
         , lastElapsed = IndexEntry.lastElapsed ie
         , flags = IndexEntry.flags ie
 
-        , progress = realToFrac $ playTime / duration
+        , progress = realToFrac (playTime / duration) `noMoreThan` 1
         }
 
       Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
 
 msToLength :: Word32 -> NominalDiffTime
 msToLength = secondsToNominalDiffTime . (/ 1e3) . fromIntegral
+
+noMoreThan :: Ord a => a -> a -> a
+noMoreThan = min

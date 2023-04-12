@@ -32,7 +32,7 @@ parseDatabase dir = do
     Left errBundle -> die $ showErrorBundle errBundle
 
 printPodcasts :: Database -> IO ()
--- TODO color podcast and episode?
+-- TODO colorize progress; also podcast and episode?
 printPodcasts
   = mapM_ print
   . lessRecentFirst
