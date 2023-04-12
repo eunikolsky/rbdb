@@ -7,6 +7,7 @@ module RockboxDB.Entry
 
 import Data.IntMap ((!?))
 import Data.Text qualified as T
+import Data.Time.Clock
 import Numeric.Natural
 import RockboxDB.IndexEntry qualified as IndexEntry
 import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
@@ -17,6 +18,7 @@ import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
 -- | Parsed valid rockbox database entry.
 data Entry = Entry
   { filePath :: FilePath
+  , duration :: NominalDiffTime
   , playCount :: Natural
 
   , playTime :: Natural
@@ -46,6 +48,7 @@ data Entry = Entry
 instance Show Entry where
   show Entry{..} = mconcat
     [ "File ", filePath
+    , " (", show duration, ")"
     , ": ", show playCount, " plays"
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
@@ -64,6 +67,7 @@ parser (TagFile.Filenames filenameMap) = do
     case filenameMap !? fromIntegral filenameOffset of
       Just filename -> Just $ Entry
         { filePath = T.unpack . Filename.getFilename $ filename
+        , duration = msToLength $ IndexEntry.lengthMs ie
         , playCount = fromIntegral $ IndexEntry.playCount ie
         , playTime = fromIntegral $ IndexEntry.playTime ie
         , playOrder = fromIntegral $ IndexEntry.lastPlayed ie
@@ -74,3 +78,6 @@ parser (TagFile.Filenames filenameMap) = do
         }
 
       Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
+
+msToLength :: Word32 -> NominalDiffTime
+msToLength = secondsToNominalDiffTime . (/ 1e3) . fromIntegral
