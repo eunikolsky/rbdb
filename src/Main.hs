@@ -6,6 +6,7 @@ import Data.Set qualified as Set
 import Data.Void
 import Numeric
 import RockboxDB as Database
+import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
 import System.Environment
 import System.Exit
@@ -33,7 +34,7 @@ parseDatabase dir = do
 printPodcasts :: Database -> IO ()
 -- TODO color podcast and episode?
 printPodcasts = mapM_ print . filter isPodcast . Database.validEntries
-  where isPodcast = ("/podcasts" `isPrefixOf`) . filePath
+  where isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =

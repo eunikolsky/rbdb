@@ -19,6 +19,7 @@ executable rbdb
   main-is:             Main.hs
   other-modules:
       RockboxDB
+    , RockboxDB.Entry
     , RockboxDB.IndexEntry
     , RockboxDB.IndexEntry.Flags
     , RockboxDB.Prelude

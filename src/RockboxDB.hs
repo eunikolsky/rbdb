@@ -1,39 +1,22 @@
 module RockboxDB
   ( Database(..)
   , DatabaseDir(..)
-  , Entry(..)
   , parse
   ) where
 
 import Control.Monad
 import Data.ByteString qualified as BS
-import Data.IntMap ((!?))
 import Data.Maybe
-import Data.Text qualified as T
-import Numeric.Natural
-import RockboxDB.IndexEntry qualified as IndexEntry
-import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
+import RockboxDB.Entry (Entry)
+import RockboxDB.Entry qualified as Entry (parser)
 import RockboxDB.Prelude
+import RockboxDB.TagFile.Filename qualified as Filename (parser)
 import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..), headerSize)
-import RockboxDB.TagFile.Filename qualified as Filename (getFilename, parser)
 import System.FilePath
 import System.Directory
 
 -- | Parsed rockbox database, consists of only non-deleted entries.
 newtype Database = Database { validEntries :: [Entry] }
-  deriving stock Show
-
--- | Parsed valid rockbox database entry.
-data Entry = Entry
-  { filePath :: FilePath
-  , playCount :: Natural
-  , playTime :: Natural
-  , lastPlayed :: Word32 -- FIXME decode into a time
-  , modTime :: Word32 -- FIXME decode into a time
-  , lastOffset :: Word32
-  , lastElapsed :: Word32
-  , flags :: IndexEntry.Flags -- FIXME more suitable type
-  }
   deriving stock Show
 
 -- | Directory of rockbox database, which should contain at least
@@ -68,31 +51,11 @@ parser expectedDataSize filenames = do
   _isDirty <- word32
 
   validEntries <- fmap catMaybes . count (fromIntegral numEntries) $
-    validEntryParser filenames
+    Entry.parser filenames
 
   eof
 
   pure $ Database { validEntries }
-
--- returns Nothing if the entry is invalid (was deleted)
-validEntryParser :: TagFile.Filenames -> Parser (Maybe Entry)
-validEntryParser (TagFile.Filenames filenameMap) = do
-  ie <- IndexEntry.parser
-  pure $ do
-    filenameOffset <- IndexEntry.maybeFilenameOffset ie
-    case filenameMap !? fromIntegral filenameOffset of
-      Just filename -> Just $ Entry
-        { filePath = T.unpack . Filename.getFilename $ filename
-        , playCount = fromIntegral $ IndexEntry.playCount ie
-        , playTime = fromIntegral $ IndexEntry.playTime ie
-        , lastPlayed = IndexEntry.lastPlayed ie
-        , modTime = IndexEntry.mtime ie
-        , lastOffset = IndexEntry.lastOffset ie
-        , lastElapsed = IndexEntry.lastElapsed ie
-        , flags = IndexEntry.flags ie
-        }
-
-      Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
 
 -- | Calculates the expected data size in the index file based on the filesizes
 -- of almost all the database files.
