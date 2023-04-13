@@ -66,9 +66,9 @@ printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
       | progressPercent >= 80 -> green
       | otherwise -> brightRed
 
-    green s = setSGRCode [SetColor Foreground Dull Green] <> s <> setSGRCode []
-    brightGreen s = setSGRCode [SetColor Foreground Vivid Green] <> s <> setSGRCode []
-    brightRed s = setSGRCode [SetColor Foreground Vivid Red] <> s <> setSGRCode []
+    green = withColor (Dull, Green)
+    brightGreen = withColor (Vivid, Green)
+    brightRed = withColor (Vivid, Red)
 
 colorFilePath :: FilePath -> String
 colorFilePath fp = case splitEpisodePath of
@@ -86,8 +86,11 @@ colorFilePath fp = case splitEpisodePath of
       (episode : podcast : rest) -> Just (joinPath $ reverse rest, podcast, episode)
       _ -> Nothing
 
-    blue s = setSGRCode [SetColor Foreground Dull Blue] <> s <> setSGRCode []
-    yellow s = setSGRCode [SetColor Foreground Dull Yellow] <> s <> setSGRCode []
+    blue = withColor (Dull, Blue)
+    yellow = withColor (Dull, Yellow)
+
+withColor :: (ColorIntensity, Color) -> String -> String
+withColor (intensity, color) s = setSGRCode [SetColor Foreground intensity color] <> s <> setSGRCode []
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
