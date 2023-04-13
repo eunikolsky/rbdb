@@ -59,6 +59,7 @@ executable rbdb
     , DerivingStrategies
     , GeneralizedNewtypeDeriving
     , ImportQualifiedPost
+    , MultiWayIf
     , NamedFieldPuns
     , NumericUnderscores
     , OverloadedStrings

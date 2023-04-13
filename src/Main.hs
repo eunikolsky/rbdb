@@ -35,7 +35,7 @@ parseDatabase dir = do
     Left errBundle -> die $ showErrorBundle errBundle
 
 printPodcasts :: Database -> IO ()
--- TODO colorize progress; also podcast and episode?
+-- TODO colorize podcast and episode?
 printPodcasts
   = mapM_ printPodcast
   . lessRecentFirst
@@ -52,13 +52,23 @@ printPodcast :: Entry -> IO ()
 printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
   [ filePath
   , ": "
-  , yellow $ show @Int (round $ progress * 100) <> "%"
+  , coloredProgress
   , ", "
   , show playCount
   , " plays\n"
   ]
 
-  where yellow s = setSGRCode [SetColor Foreground Dull Yellow] <> s <> setSGRCode []
+  where
+    progressPercent = round $ progress * 100
+    coloredProgress = progressColor $ show @Int progressPercent <> "%"
+    progressColor = if
+      | progressPercent == 100 -> brightGreen
+      | progressPercent >= 80 -> green
+      | otherwise -> brightRed
+
+    green s = setSGRCode [SetColor Foreground Dull Green] <> s <> setSGRCode []
+    brightGreen s = setSGRCode [SetColor Foreground Vivid Green] <> s <> setSGRCode []
+    brightRed s = setSGRCode [SetColor Foreground Vivid Red] <> s <> setSGRCode []
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
