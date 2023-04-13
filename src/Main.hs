@@ -13,6 +13,7 @@ import RockboxDB.Prelude
 import System.Console.ANSI
 import System.Environment
 import System.Exit
+import System.FilePath
 
 main :: IO ()
 main = getIndexFilepath >>= parseDatabase >>= printPodcasts
@@ -35,7 +36,6 @@ parseDatabase dir = do
     Left errBundle -> die $ showErrorBundle errBundle
 
 printPodcasts :: Database -> IO ()
--- TODO colorize podcast and episode?
 printPodcasts
   = mapM_ printPodcast
   . lessRecentFirst
@@ -50,7 +50,7 @@ printPodcasts
 
 printPodcast :: Entry -> IO ()
 printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
-  [ filePath
+  [ colorFilePath filePath
   , ": "
   , coloredProgress
   , ", "
@@ -69,6 +69,25 @@ printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
     green s = setSGRCode [SetColor Foreground Dull Green] <> s <> setSGRCode []
     brightGreen s = setSGRCode [SetColor Foreground Vivid Green] <> s <> setSGRCode []
     brightRed s = setSGRCode [SetColor Foreground Vivid Red] <> s <> setSGRCode []
+
+colorFilePath :: FilePath -> String
+colorFilePath fp = case splitEpisodePath of
+  Just (root, podcast, episode) -> intercalate [pathSeparator]
+    [root, blue podcast, yellow episode]
+  Nothing -> fp
+
+  where
+    -- | Splits the standard (for me) filepath like `/podcasts/podcast/episode.mp3` into
+    -- three parts: `("/podcasts", "podcast", "episode.mp3")`; returns `Nothing`
+    -- if there is no root in the filepath.
+    splitEpisodePath = case reverse $ splitDirectories fp of
+      -- `reverse` seems to be the simplest way to pick the last two items with
+      -- the rest in front as the `rest`
+      (episode : podcast : rest) -> Just (joinPath $ reverse rest, podcast, episode)
+      _ -> Nothing
+
+    blue s = setSGRCode [SetColor Foreground Dull Blue] <> s <> setSGRCode []
+    yellow s = setSGRCode [SetColor Foreground Dull Yellow] <> s <> setSGRCode []
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
