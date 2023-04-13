@@ -10,7 +10,7 @@ import Numeric
 import RockboxDB as Database
 import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
-import String.ANSI
+import System.Console.ANSI
 import System.Environment
 import System.Exit
 
@@ -57,6 +57,8 @@ printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
   , show playCount
   , " plays\n"
   ]
+
+  where yellow s = setSGRCode [SetColor Foreground Dull Yellow] <> s <> setSGRCode []
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
