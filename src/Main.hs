@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Main (main) where
 
 import Data.List (intercalate, isPrefixOf, sortOn)
