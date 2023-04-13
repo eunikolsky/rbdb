@@ -36,7 +36,7 @@ parseDatabase dir = do
 printPodcasts :: Database -> IO ()
 -- TODO colorize progress; also podcast and episode?
 printPodcasts
-  = mapM_ print
+  = mapM_ printPodcast
   . lessRecentFirst
   . filter (\e -> isPlayed e && isPodcast e)
   . Database.validEntries
@@ -46,6 +46,16 @@ printPodcasts
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
     lessRecentFirst = sortOn Entry.playOrder
+
+printPodcast :: Entry -> IO ()
+printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
+  [ filePath
+  , ": "
+  , show @Int . round $ progress * 100
+  , "%, "
+  , show playCount
+  , " plays\n"
+  ]
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =
