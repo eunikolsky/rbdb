@@ -33,6 +33,7 @@ executable rbdb
     , directory
     , megaparsec
     , text
+    , text-ansi
     , time
   ghc-options:         -Wall
                        -Wcompat

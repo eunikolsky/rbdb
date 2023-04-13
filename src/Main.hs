@@ -10,6 +10,7 @@ import Numeric
 import RockboxDB as Database
 import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
+import String.ANSI
 import System.Environment
 import System.Exit
 
@@ -51,8 +52,8 @@ printPodcast :: Entry -> IO ()
 printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
   [ filePath
   , ": "
-  , show @Int . round $ progress * 100
-  , "%, "
+  , yellow $ show @Int (round $ progress * 100) <> "%"
+  , ", "
   , show playCount
   , " plays\n"
   ]
