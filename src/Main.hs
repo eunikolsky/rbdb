@@ -2,21 +2,22 @@ module Main (main) where
 
 import Config
 import Data.List (isPrefixOf, sortOn)
+import Options.Applicative
 import Output
 import RockboxDB as Database
 import RockboxDB.Entry as Entry
-import System.Environment
 import System.Exit
 
 main :: IO ()
-main = getIndexFilepath >>= parseDatabase >>= printPodcasts
+main = parseOptions >>= parseDatabase >>= printPodcasts
 
-getIndexFilepath :: IO Config
-getIndexFilepath = do
-  args <- getArgs
-  case args of
-    [fp] -> pure . Config $ DatabaseDir fp
-    _ -> die "Provide the path to the rockbox database directory (with `database_*.tcd`)"
+parseOptions :: IO Config
+parseOptions = execParser opts
+  where
+    opts = info (Config.parser <**> helper)
+      ( fullDesc
+      <> header "Print played podcast episodes from the rockbox database"
+      )
 
 parseDatabase :: Config -> IO Database
 parseDatabase Config { databaseDir = dir } = do
