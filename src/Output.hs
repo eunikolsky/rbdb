@@ -48,14 +48,13 @@ colorProgress progress = progressColor $ show @Int progressPercent <> "%"
       | otherwise -> brightRed
 
     green = withColor (Dull, Green)
-    brightGreen = withColor (Vivid, Green)
     brightRed = withColor (Vivid, Red)
 
 colorFilePath :: FilePath -> Reader SupportsColor String
 colorFilePath fp = case splitEpisodePath of
   Just (root, podcast, episode) -> do
     cpodcast <- blue podcast
-    cepisode <- yellow episode
+    cepisode <- brightGreen episode
     pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
   Nothing -> pure fp
 
@@ -70,7 +69,9 @@ colorFilePath fp = case splitEpisodePath of
       _ -> Nothing
 
     blue = withColor (Dull, Blue)
-    yellow = withColor (Dull, Yellow)
+
+brightGreen :: String -> Reader SupportsColor String
+brightGreen = withColor (Vivid, Green)
 
 withColor :: (ColorIntensity, Color) -> String -> Reader SupportsColor String
 withColor (intensity, color) s = do
