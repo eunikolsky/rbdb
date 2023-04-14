@@ -1,5 +1,6 @@
 module Main (main) where
 
+import Config
 import Data.List (isPrefixOf, sortOn)
 import Output
 import RockboxDB as Database
@@ -10,15 +11,15 @@ import System.Exit
 main :: IO ()
 main = getIndexFilepath >>= parseDatabase >>= printPodcasts
 
-getIndexFilepath :: IO DatabaseDir
+getIndexFilepath :: IO Config
 getIndexFilepath = do
   args <- getArgs
   case args of
-    [fp] -> pure $ DatabaseDir fp
+    [fp] -> pure . Config $ DatabaseDir fp
     _ -> die "Provide the path to the rockbox database directory (with `database_*.tcd`)"
 
-parseDatabase :: DatabaseDir -> IO Database
-parseDatabase dir = do
+parseDatabase :: Config -> IO Database
+parseDatabase Config { databaseDir = dir } = do
   eitherDB <- Database.parse dir
   case eitherDB of
     Right db -> pure db
