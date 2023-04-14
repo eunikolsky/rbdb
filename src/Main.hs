@@ -9,10 +9,13 @@ import RockboxDB.Entry as Entry
 import System.Exit
 
 main :: IO ()
-main = parseOptions >>= parseDatabase >>= printPodcasts
+main = do
+  config <- parseConfig
+  db <- parseDatabase config
+  printPodcasts config db
 
-parseOptions :: IO Config
-parseOptions = execParser opts
+parseConfig :: IO Config
+parseConfig = execParser opts
   where
     opts = info (Config.parser <**> helper)
       ( fullDesc
@@ -29,9 +32,9 @@ parseDatabase Config { databaseDir = dir } = do
     -- https://github.com/mrkkrp/megaparsec/issues/465
     Left errBundle -> die $ showErrorBundle errBundle
 
-printPodcasts :: Database -> IO ()
-printPodcasts
-  = mapM_ printPodcast
+printPodcasts :: Config -> Database -> IO ()
+printPodcasts config
+  = mapM_ (printPodcast config)
   . lessRecentFirst
   . filter (\e -> isPlayed e && isPodcast e)
   . Database.validEntries

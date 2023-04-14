@@ -5,6 +5,7 @@ module Output
   , showErrorBundle
   ) where
 
+import Config
 import Data.List (intercalate)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
@@ -14,15 +15,18 @@ import RockboxDB.Prelude
 import System.Console.ANSI
 import System.FilePath
 
-printPodcast :: Entry -> IO ()
-printPodcast Entry { filePath, progress, playCount } = mapM_ putStr
-  [ colorFilePath filePath
-  , ": "
-  , coloredProgress
-  , ", "
-  , show playCount
-  , " plays\n"
-  ]
+printPodcast :: Config -> Entry -> IO ()
+printPodcast Config { showOnlyFilenames } Entry { filePath, progress, playCount } = mapM_ putStr $
+  [colorFilePath filePath]
+  -- TODO is there a cleaner syntax for this?
+  <> (if showOnlyFilenames then mempty else
+    [ ": "
+    , coloredProgress
+    , ", "
+    , show playCount
+    , " plays"
+    ])
+  <> ["\n"]
 
   where
     progressPercent = round $ progress * 100
