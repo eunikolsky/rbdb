@@ -40,7 +40,7 @@ parseDatabase Config { databaseDir = dir } = do
 printPodcasts :: Config -> Database -> IO ()
 printPodcasts config
   = mapM_ (printPodcast config)
-  . lessRecentFirst
+  . sortedByFilePath
   . filter (\e -> isPlayed e && isPodcast e)
   . Database.validEntries
 
@@ -48,4 +48,4 @@ printPodcasts config
     isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
-    lessRecentFirst = sortOn Entry.playOrder
+    sortedByFilePath = sortOn Entry.filePath
