@@ -1,5 +1,5 @@
 name:                rbdb
-version:             0.1.0.0
+version:             0.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/githubuser/rbdb#readme
@@ -17,14 +17,58 @@ extra-source-files:  README.md
 executable rbdb
   hs-source-dirs:      src
   main-is:             Main.hs
+  other-modules:
+      Config
+    , Output
+    , Paths_rbdb
+    , RockboxDB
+    , RockboxDB.Entry
+    , RockboxDB.IndexEntry
+    , RockboxDB.IndexEntry.Flags
+    , RockboxDB.Prelude
+    , RockboxDB.TagFile.Filename
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
+  build-depends:
+      ansi-terminal
+    , base >= 4.7 && < 5
+    , bytestring
+    , containers
+    , filepath
+    , directory
+    , megaparsec
+    , mtl
+    , optparse-applicative
+    , text
+    , time
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
-                       -Wincomplete-record-updates
-                       -Wincomplete-uni-patterns
+                       -Wnoncanonical-monad-instances
+                       -fhide-source-paths
                        -Wmissing-export-lists
-                       -Wmissing-home-modules
                        -Wpartial-fields
                        -Wredundant-constraints
+                       -Wmissing-deriving-strategies
+                       -Wunused-packages
+                       -Werror=empty-enumerations
+                       -Werror=missing-methods
+                       -Werror=missing-fields
+                       -Werror=incomplete-patterns
+                       -Werror=incomplete-record-updates
+                       -Werror=incomplete-uni-patterns
+                       -Werror=missing-home-modules
+  default-extensions:
+      BangPatterns
+    , BinaryLiterals
+    , DeriveGeneric
+    , DerivingStrategies
+    , GeneralizedNewtypeDeriving
+    , ImportQualifiedPost
+    , MultiWayIf
+    , NamedFieldPuns
+    , NumericUnderscores
+    , OverloadedStrings
+    , ScopedTypeVariables
+    , TypeApplications
+  -- most of the list is copied from summoner
+  -- https://github.com/kowainik/summoner/blob/main/summoner-cli/examples/stack-full/stack-full.cabal
