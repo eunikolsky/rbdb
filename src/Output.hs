@@ -6,7 +6,9 @@ module Output
   ) where
 
 import Config
-import Data.List (intercalate)
+import Config qualified as UseColor (UseColor(..))
+import Control.Monad.Reader
+import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
 import Numeric
@@ -14,21 +16,29 @@ import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
 import System.Console.ANSI
 import System.FilePath
+import System.IO
 
 printPodcast :: Config -> Entry -> IO ()
-printPodcast Config { showOnlyFilenames } Entry { filePath, progress, playCount } = mapM_ putStr $
-  [colorFilePath filePath]
-  -- TODO is there a cleaner syntax for this?
-  <> (if showOnlyFilenames then mempty else
-    [ ": "
-    , colorProgress progress
-    , ", "
-    , show playCount
-    , " plays"
-    ])
-  <> ["\n"]
+printPodcast
+  Config { showOnlyFilenames, useColor }
+  Entry { filePath, progress, playCount }
+  = do
+    supportsColor <- determineColorSupport useColor
+    mapM_ putStrLn . flip runReader supportsColor $ do
+      cfilePath <- colorFilePath filePath
+      -- TODO is there a cleaner syntax for this?
+      crest <- if showOnlyFilenames then pure [] else do
+        cprogress <- colorProgress progress
+        pure
+          [ ": "
+          , cprogress
+          , ", "
+          , show playCount
+          , " plays"
+          ]
+      pure . singleton . join $ cfilePath : crest
 
-colorProgress :: Double -> String
+colorProgress :: Double -> Reader SupportsColor String
 colorProgress progress = progressColor $ show @Int progressPercent <> "%"
   where
     progressPercent = round $ progress * 100
@@ -41,11 +51,13 @@ colorProgress progress = progressColor $ show @Int progressPercent <> "%"
     brightGreen = withColor (Vivid, Green)
     brightRed = withColor (Vivid, Red)
 
-colorFilePath :: FilePath -> String
+colorFilePath :: FilePath -> Reader SupportsColor String
 colorFilePath fp = case splitEpisodePath of
-  Just (root, podcast, episode) -> intercalate [pathSeparator]
-    [root, blue podcast, yellow episode]
-  Nothing -> fp
+  Just (root, podcast, episode) -> do
+    cpodcast <- blue podcast
+    cepisode <- yellow episode
+    pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
+  Nothing -> pure fp
 
   where
     -- | Splits the standard (for me) filepath like `/podcasts/podcast/episode.mp3` into
@@ -60,8 +72,19 @@ colorFilePath fp = case splitEpisodePath of
     blue = withColor (Dull, Blue)
     yellow = withColor (Dull, Yellow)
 
-withColor :: (ColorIntensity, Color) -> String -> String
-withColor (intensity, color) s = setSGRCode [SetColor Foreground intensity color] <> s <> setSGRCode []
+withColor :: (ColorIntensity, Color) -> String -> Reader SupportsColor String
+withColor (intensity, color) s = do
+  SupportsColor supportsColor <- ask
+  pure $ if supportsColor
+    then setSGRCode [SetColor Foreground intensity color] <> s <> setSGRCode []
+    else s
+
+newtype SupportsColor = SupportsColor Bool
+
+determineColorSupport :: UseColor -> IO SupportsColor
+determineColorSupport UseColor.Yes = pure $ SupportsColor True
+determineColorSupport UseColor.No = pure $ SupportsColor False
+determineColorSupport UseColor.Auto = SupportsColor <$> hSupportsANSIColor stdout
 
 showErrorBundle :: ParseError -> String
 showErrorBundle ParseErrorBundle { bundleErrors } =

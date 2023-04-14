@@ -35,6 +35,7 @@ executable rbdb
     , filepath
     , directory
     , megaparsec
+    , mtl
     , optparse-applicative
     , text
     , time
