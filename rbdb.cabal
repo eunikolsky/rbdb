@@ -1,5 +1,5 @@
 name:                rbdb
-version:             0.1.0.0
+version:             0.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/githubuser/rbdb#readme
@@ -20,6 +20,7 @@ executable rbdb
   other-modules:
       Config
     , Output
+    , Paths_rbdb
     , RockboxDB
     , RockboxDB.Entry
     , RockboxDB.IndexEntry

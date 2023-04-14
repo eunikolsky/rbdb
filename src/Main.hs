@@ -2,8 +2,10 @@ module Main (main) where
 
 import Config
 import Data.List (isPrefixOf, sortOn)
+import Data.Version
 import Options.Applicative
 import Output
+import Paths_rbdb (version)
 import RockboxDB as Database
 import RockboxDB.Entry as Entry
 import System.Exit
@@ -17,10 +19,13 @@ main = do
 parseConfig :: IO Config
 parseConfig = execParser opts
   where
-    opts = info (Config.parser <**> helper)
+    opts = info (Config.parser <**> versioner <**> helper)
       ( fullDesc
       <> header "Print played podcast episodes from the rockbox database"
       )
+
+    versioner = infoOption (showVersion version)
+      (long "version" <> help "Show version" <> hidden)
 
 parseDatabase :: Config -> IO Database
 parseDatabase Config { databaseDir = dir } = do
