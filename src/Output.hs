@@ -21,16 +21,17 @@ printPodcast Config { showOnlyFilenames } Entry { filePath, progress, playCount 
   -- TODO is there a cleaner syntax for this?
   <> (if showOnlyFilenames then mempty else
     [ ": "
-    , coloredProgress
+    , colorProgress progress
     , ", "
     , show playCount
     , " plays"
     ])
   <> ["\n"]
 
+colorProgress :: Double -> String
+colorProgress progress = progressColor $ show @Int progressPercent <> "%"
   where
     progressPercent = round $ progress * 100
-    coloredProgress = progressColor $ show @Int progressPercent <> "%"
     progressColor = if
       | progressPercent == 100 -> brightGreen
       | progressPercent >= 80 -> green
