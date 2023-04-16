@@ -41,11 +41,12 @@ printPodcasts :: Config -> Database -> IO ()
 printPodcasts config
   = mapM_ (printPodcast config)
   . sortedByFilePath
-  . filter (\e -> isPlayed e && isPodcast e)
+  . filter (\e -> all ($ e) [hasNonTrivialProgress, isPlayed, isPodcast])
   . Database.validEntries
 
   where
     isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
+    hasNonTrivialProgress = (> 0.03) . Entry.progress
     sortedByFilePath = sortOn Entry.filePath
