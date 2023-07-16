@@ -33,7 +33,7 @@ parser = do
     bytes <- count bytesLength word8
     void $ char 0
 
-    pure (offset, Filename . TE.decodeUtf8 . BS.pack $ bytes)
+    pure (offset, Filename . TE.decodeUtf8Lenient . BS.pack $ bytes)
 
   eof
 
