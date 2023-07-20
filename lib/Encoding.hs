@@ -15,7 +15,10 @@ decodeCesu8 :: HasCallStack => ByteString -> Text
 decodeCesu8 bs =
   let (decodable, rest) = BS.break (== 0xed) bs
       prefix = decodeUtf8 decodable
-      restDecoded = if BS.null rest then "" else decodeCesu8Char rest
+      (cesu8Char, rest') = BS.splitAt 6 rest
+      restDecoded = if BS.null rest
+        then ""
+        else decodeCesu8Char cesu8Char <> decodeUtf8 rest'
   in prefix <> restDecoded
 
 decodeCesu8Char :: HasCallStack => ByteString -> Text
