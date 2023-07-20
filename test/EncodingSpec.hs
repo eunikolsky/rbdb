@@ -1,5 +1,8 @@
 module EncodingSpec (spec) where
 
+import Control.Monad
+import Data.Text qualified as T
+import Data.Text.Encoding
 import Encoding
 import Test.Hspec
 
@@ -13,5 +16,18 @@ spec = do
       decodeCesu8 "ab C \xd0\xa4\xd1\x94\xe2\x88\x9e \xc5\x8f\xe2\xa9\x94\xe2\x9d\x86\xef\xbf\xbd"
         `shouldBe` "ab C Фє∞ ŏ⩔❆�"
 
-    it "decodes single CESU-8 character" $ do
-      decodeCesu8 "\xed\xa0\x81\xed\xb0\x80" `shouldBe` "𐐀"
+      -- these can be generated with:
+      -- $ print -n '𐐀' | uconv -t cesu-8 | xxd
+      -- 00000000: eda0 81ed b080                           ......
+
+    forM_
+      [ ("\xed\xa0\x80\xed\xb0\x80", "𐀀") -- U+10000
+      , ("\xed\xa0\x81\xed\xb0\x80", "𐐀") -- U+10400; \xD801\xDC00
+      , ("\xed\xa0\xbd\xed\xba\xb2", "🚲") -- U+1F6B2
+      -- `􏿿` itself can't be parsed by GHC:
+      -- `error: [GHC-21231] lexical error in string/character literal at character '\1114111'`
+      , ("\xed\xaf\xbf\xed\xbf\xbf", decodeUtf8 "\xf4\x8f\xbf\xbf") -- U+10FFFF
+      ]
+      $ \(input, expected) ->
+        it ("decodes single CESU-8 character " <> T.unpack expected) $
+          decodeCesu8 input `shouldBe` expected

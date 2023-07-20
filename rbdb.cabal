@@ -70,6 +70,7 @@ test-suite unit-test
   build-depends:
       hspec
     , rbdb
+    , text
 
 executable rbdb
   import:              common-options
