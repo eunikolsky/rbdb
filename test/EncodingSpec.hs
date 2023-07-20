@@ -31,3 +31,6 @@ spec = do
       $ \(input, expected) ->
         it ("decodes single CESU-8 character " <> T.unpack expected) $
           decodeCesu8 input `shouldBe` expected
+
+    it "decodes a single CESU-8 character at the end" $ do
+      decodeCesu8 "foo \xd0\xaf <\xed\xa0\x81\xed\xb0\x80" `shouldBe` "foo Я <𐐀"
