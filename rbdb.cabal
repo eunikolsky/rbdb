@@ -51,6 +51,26 @@ common common-options
                        -Werror=incomplete-uni-patterns
                        -Werror=missing-home-modules
 
+library
+  import:              common-options
+  hs-source-dirs:      lib
+  exposed-modules:
+      Encoding
+  build-depends:
+      bytestring
+    , text
+
+test-suite unit-test
+  import:              common-options
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:
+      EncodingSpec
+  build-depends:
+      hspec
+    , rbdb
+
 executable rbdb
   import:              common-options
   hs-source-dirs:      src
