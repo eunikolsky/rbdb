@@ -37,3 +37,6 @@ spec = do
 
     it "decodes a single CESU-8 character inside string" $ do
       decodeCesu8 "foo \xd0\xaf <\xed\xa0\x81\xed\xb0\x80! \xe2\x88\x86" `shouldBe` "foo Я <𐐀! ∆"
+
+    it "decodes CESU-8 characters inside string" $ do
+      decodeCesu8 "foo \xd0\xaf <\xed\xa0\x81\xed\xb0\x80! \xed\xa0\x80\xed\xb0\x80\xe2\x88\x86" `shouldBe` "foo Я <𐐀! 𐀀∆"

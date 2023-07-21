@@ -18,7 +18,7 @@ decodeCesu8 bs =
       (cesu8Char, rest') = BS.splitAt 6 rest
       restDecoded = if BS.null rest
         then ""
-        else decodeCesu8Char cesu8Char <> decodeUtf8 rest'
+        else decodeCesu8Char cesu8Char <> decodeCesu8 rest'
   in prefix <> restDecoded
 
 decodeCesu8Char :: HasCallStack => ByteString -> Text
