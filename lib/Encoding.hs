@@ -12,14 +12,18 @@ import Data.Text.Encoding (decodeUtf8)
 import GHC.Stack
 
 decodeCesu8 :: HasCallStack => ByteString -> Text
-decodeCesu8 bs =
-  let (decodable, rest) = BS.break (== 0xed) bs
-      prefix = decodeUtf8 decodable
-      (cesu8Char, rest') = BS.splitAt 6 rest
-      restDecoded = if BS.null rest
-        then ""
-        else decodeCesu8Char cesu8Char <> decodeCesu8 rest'
-  in prefix <> restDecoded
+decodeCesu8 = iter ""
+  where
+    iter :: Text -> ByteString -> Text
+    iter acc "" = acc
+    iter acc bs =
+      let (decodable, rest) = BS.break (== 0xed) bs
+          prefix = decodeUtf8 decodable
+          (cesu8Char, rest') = BS.splitAt 6 rest
+          char = if BS.null rest
+            then ""
+            else decodeCesu8Char cesu8Char
+      in iter (acc <> prefix <> char) rest'
 
 decodeCesu8Char :: HasCallStack => ByteString -> Text
 decodeCesu8Char bs =
