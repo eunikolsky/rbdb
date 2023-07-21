@@ -1,8 +1,8 @@
 module EncodingSpec (spec) where
 
 import Control.Monad
-import Data.Text qualified as T
-import Data.Text.Encoding
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding
 import Encoding
 import Test.Hspec
 
@@ -29,7 +29,7 @@ spec = do
       , ("\xed\xaf\xbf\xed\xbf\xbf", decodeUtf8 "\xf4\x8f\xbf\xbf") -- U+10FFFF
       ]
       $ \(input, expected) ->
-        it ("decodes single CESU-8 character " <> T.unpack expected) $
+        it ("decodes single CESU-8 character " <> TL.unpack expected) $
           decodeCesu8 input `shouldBe` expected
 
     it "decodes a single CESU-8 character at the end" $ do
