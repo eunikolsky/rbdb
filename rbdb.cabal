@@ -87,7 +87,8 @@ executable rbdb
     , RockboxDB.Prelude
     , RockboxDB.TagFile.Filename
   build-depends:
-      ansi-terminal
+      rbdb
+    , ansi-terminal
     , bytestring
     , containers
     , filepath

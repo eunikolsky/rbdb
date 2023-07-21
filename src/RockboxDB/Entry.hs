@@ -6,7 +6,7 @@ module RockboxDB.Entry
   ) where
 
 import Data.IntMap ((!?))
-import Data.Text qualified as T
+import Data.Text.Lazy qualified as TL
 import Data.Time.Clock
 import Numeric.Natural
 import RockboxDB.IndexEntry qualified as IndexEntry
@@ -79,7 +79,7 @@ parser (TagFile.Filenames filenameMap) = do
     let playTime = msToLength $ IndexEntry.playTimeMs ie
     case filenameMap !? fromIntegral filenameOffset of
       Just filename -> Just $ Entry
-        { filePath = T.unpack . Filename.getFilename $ filename
+        { filePath = TL.unpack . Filename.getFilename $ filename
         , duration
         , playCount = fromIntegral $ IndexEntry.playCount ie
         , playTime

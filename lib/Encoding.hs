@@ -3,12 +3,12 @@ module Encoding
   ) where
 
 import Data.Bits
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy (ByteString)
+import Data.ByteString.Lazy qualified as BSL
 import Data.Char
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy.Builder qualified as TLB
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Lazy.Encoding (decodeUtf8)
 import GHC.Stack
 
 {-|
@@ -32,10 +32,10 @@ decodeCesu8 = TLB.toLazyText . iter ""
       -- an alternative implementation would be to use the new `decodeUtf8Chunk`
       -- function from `text-2.0.2` to let it UTF-8 decode everything it can and
       -- manually decode the error sequences (which are CESU-8).
-      let (decodable, rest) = BS.break (== 0xed) bs
-          prefix = TLB.fromText $ decodeUtf8 decodable
-          (cesu8Char, rest') = BS.splitAt 6 rest
-          char = if BS.null rest
+      let (decodable, rest) = BSL.break (== 0xed) bs
+          prefix = TLB.fromLazyText $ decodeUtf8 decodable
+          (cesu8Char, rest') = BSL.splitAt 6 rest
+          char = if BSL.null rest
             then ""
             else decodeCesu8Char cesu8Char
       in iter (acc <> prefix <> char) rest'
@@ -46,11 +46,11 @@ decodeCesu8Char bs =
   -- https://en.wikipedia.org/wiki/CESU-8; an alternative would be to manually
   -- decode into UTF-16BE and then decode that into Unicode.
   let -- #0 is always 0xed
-      part0 = fromIntegral $ (bs `BS.index` 1) .&. 0b00001111
-      part1 = fromIntegral $ (bs `BS.index` 2) .&. 0b00111111
+      part0 = fromIntegral $ (bs `BSL.index` 1) .&. 0b00001111
+      part1 = fromIntegral $ (bs `BSL.index` 2) .&. 0b00111111
       -- #3 is always 0xed
-      part2 = fromIntegral $ (bs `BS.index` 4) .&. 0b00001111
-      part3 = fromIntegral $ (bs `BS.index` 5) .&. 0b00111111
+      part2 = fromIntegral $ (bs `BSL.index` 4) .&. 0b00001111
+      part3 = fromIntegral $ (bs `BSL.index` 5) .&. 0b00111111
 
       code = ((part0 + 1) `shiftL` (6 + 4 + 6))
         .|. (part1 `shiftL` (6 + 4))
