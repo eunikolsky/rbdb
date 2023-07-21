@@ -6,11 +6,11 @@ module RockboxDB.TagFile.Filename
   ) where
 
 import Control.Monad
-import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as BSL
 import Data.IntMap.Strict (IntMap)
 import Data.IntMap.Strict qualified as IntMap
-import Data.Text (Text)
-import Data.Text.Encoding qualified as TE
+import Data.Text.Lazy (Text)
+import Encoding
 import RockboxDB.Prelude
 
 newtype Filename = Filename { getFilename :: Text }
@@ -33,7 +33,7 @@ parser = do
     bytes <- count bytesLength word8
     void $ char 0
 
-    pure (offset, Filename . TE.decodeUtf8Lenient . BS.pack $ bytes)
+    pure (offset, Filename . decodeCesu8 . BSL.pack $ bytes)
 
   eof
 
