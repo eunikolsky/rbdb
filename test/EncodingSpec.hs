@@ -43,3 +43,7 @@ spec = do
 
     it "decodes multiple CESU-8 characters" $ do
       decodeCesu8 "\xed\xa0\xbd\xed\xba\xb2\xed\xa0\x81\xed\xb0\x80\xed\xa0\x80\xed\xb0\x80" `shouldBe` "🚲𐐀𐀀"
+
+    it "throws an error on invalid bytes"
+      -- FIXME implement
+      pending
