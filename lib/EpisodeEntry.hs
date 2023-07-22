@@ -19,6 +19,7 @@ data EpisodePath = EpisodePath
   , podcast :: Text
   , episode :: String
   }
+  deriving stock (Eq, Show)
 
 -- | gPodder sync-based podcast episode entry, which is the rockbox's
 -- `RockboxDB.Entry` with the `filePath` parsed into podcast and episode parts.

@@ -80,6 +80,7 @@ test-suite unit-test
   main-is:             Spec.hs
   other-modules:
       EncodingSpec
+    , EpisodeEntrySpec
     , GPodderSortSpec
   build-depends:
       hspec
