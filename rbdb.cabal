@@ -1,6 +1,6 @@
 cabal-version:       3.0
 name:                rbdb
-version:             0.1.3
+version:             0.2.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/githubuser/rbdb#readme
@@ -56,9 +56,22 @@ library
   hs-source-dirs:      lib
   exposed-modules:
       Encoding
+    , EpisodeEntry
+    , GPodderSort
+    , RockboxDB
+    , RockboxDB.Entry
+    , RockboxDB.IndexEntry
+    , RockboxDB.IndexEntry.Flags
+    , RockboxDB.Prelude
+    , RockboxDB.TagFile.Filename
   build-depends:
       bytestring
+    , containers
+    , directory
+    , filepath
+    , megaparsec
     , text
+    , time
 
 test-suite unit-test
   import:              common-options
@@ -67,6 +80,8 @@ test-suite unit-test
   main-is:             Spec.hs
   other-modules:
       EncodingSpec
+    , EpisodeEntrySpec
+    , GPodderSortSpec
   build-depends:
       hspec
     , rbdb
@@ -80,21 +95,11 @@ executable rbdb
       Config
     , Output
     , Paths_rbdb
-    , RockboxDB
-    , RockboxDB.Entry
-    , RockboxDB.IndexEntry
-    , RockboxDB.IndexEntry.Flags
-    , RockboxDB.Prelude
-    , RockboxDB.TagFile.Filename
   build-depends:
       rbdb
     , ansi-terminal
-    , bytestring
     , containers
     , filepath
-    , directory
-    , megaparsec
     , mtl
     , optparse-applicative
     , text
-    , time

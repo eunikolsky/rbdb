@@ -11,6 +11,8 @@ import Control.Monad.Reader
 import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
+import Data.Text.Lazy qualified as TL
+import EpisodeEntry
 import Numeric
 import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
@@ -18,10 +20,10 @@ import System.Console.ANSI
 import System.FilePath
 import System.IO
 
-printPodcast :: Config -> Entry -> IO ()
+printPodcast :: Config -> EpisodeEntry -> IO ()
 printPodcast
   Config { showOnlyFilenames, useColor }
-  Entry { filePath, progress, playCount }
+  EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
@@ -50,25 +52,13 @@ colorProgress progress = progressColor $ show @Int progressPercent <> "%"
     green = withColor (Dull, Green)
     brightRed = withColor (Vivid, Red)
 
-colorFilePath :: FilePath -> Reader SupportsColor String
-colorFilePath fp = case splitEpisodePath of
-  Just (root, podcast, episode) -> do
-    cpodcast <- blue podcast
-    cepisode <- brightGreen episode
-    pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
-  Nothing -> pure fp
+colorFilePath :: EpisodePath -> Reader SupportsColor String
+colorFilePath (EpisodePath root podcast episode) = do
+  cpodcast <- blue $ TL.unpack podcast
+  cepisode <- brightGreen episode
+  pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
 
-  where
-    -- | Splits the standard (for me) filepath like `/podcasts/podcast/episode.mp3` into
-    -- three parts: `("/podcasts", "podcast", "episode.mp3")`; returns `Nothing`
-    -- if there is no root in the filepath.
-    splitEpisodePath = case reverse $ splitDirectories fp of
-      -- `reverse` seems to be the simplest way to pick the last two items with
-      -- the rest in front as the `rest`
-      (episode : podcast : rest) -> Just (joinPath $ reverse rest, podcast, episode)
-      _ -> Nothing
-
-    blue = withColor (Dull, Blue)
+  where blue = withColor (Dull, Blue)
 
 brightGreen :: String -> Reader SupportsColor String
 brightGreen = withColor (Vivid, Green)

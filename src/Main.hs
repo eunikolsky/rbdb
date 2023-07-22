@@ -1,8 +1,12 @@
 module Main (main) where
 
 import Config
-import Data.List (isPrefixOf, sortOn)
+import Data.List (sortOn)
+import Data.Text.Lazy qualified as TL
 import Data.Version
+import EpisodeEntry
+import EpisodeEntry qualified as EpisodePath (EpisodePath(..))
+import GPodderSort
 import Options.Applicative
 import Output
 import Paths_rbdb (version)
@@ -40,13 +44,17 @@ parseDatabase Config { databaseDir = dir } = do
 printPodcasts :: Config -> Database -> IO ()
 printPodcasts config
   = mapM_ (printPodcast config)
-  . sortedByFilePath
+  . sortedByPodcast
+  . fmap mkEpisodeEntry
   . filter (\e -> all ($ e) [hasNonTrivialProgress, isPlayed, isPodcast])
   . Database.validEntries
 
   where
-    isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
+    isPodcast = ("/podcasts" `TL.isPrefixOf`) . Entry.filePath
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
     hasNonTrivialProgress = (> 0.03) . Entry.progress
-    sortedByFilePath = sortOn Entry.filePath
+    sortedByPodcast = sortOn (
+        (\path -> (gPodderTitleSortKey . EpisodePath.podcast $ path, episode path))
+        . EpisodeEntry.path
+      )

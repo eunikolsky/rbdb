@@ -6,6 +6,7 @@ module RockboxDB.Entry
   ) where
 
 import Data.IntMap ((!?))
+import Data.Text.Lazy (Text)
 import Data.Text.Lazy qualified as TL
 import Data.Time.Clock
 import Numeric.Natural
@@ -17,7 +18,7 @@ import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
 
 -- | Parsed valid rockbox database entry.
 data Entry = Entry
-  { filePath :: FilePath
+  { filePath :: Text
   , duration :: NominalDiffTime
   , playCount :: Natural
 
@@ -57,7 +58,7 @@ data Entry = Entry
 
 instance Show Entry where
   show Entry{..} = mconcat
-    [ "File ", filePath
+    [ "File ", TL.unpack filePath
     , " (", show duration
     , ", ", show @Int . round $ progress * 100, "% played): "
     , show playCount, " plays"
@@ -79,7 +80,7 @@ parser (TagFile.Filenames filenameMap) = do
     let playTime = msToLength $ IndexEntry.playTimeMs ie
     case filenameMap !? fromIntegral filenameOffset of
       Just filename -> Just $ Entry
-        { filePath = TL.unpack . Filename.getFilename $ filename
+        { filePath = Filename.getFilename $ filename
         , duration
         , playCount = fromIntegral $ IndexEntry.playCount ie
         , playTime
