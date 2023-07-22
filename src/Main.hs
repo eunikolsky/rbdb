@@ -4,6 +4,7 @@ import Config
 import Data.List (sortOn)
 import Data.Text.Lazy qualified as TL
 import Data.Version
+import EpisodeEntry
 import Options.Applicative
 import Output
 import Paths_rbdb (version)
@@ -40,7 +41,7 @@ parseDatabase Config { databaseDir = dir } = do
 
 printPodcasts :: Config -> Database -> IO ()
 printPodcasts config
-  = mapM_ (printPodcast config)
+  = mapM_ (printPodcast config . mkEpisodeEntry)
   . sortedByFilePath
   . filter (\e -> all ($ e) [hasNonTrivialProgress, isPlayed, isPodcast])
   . Database.validEntries
