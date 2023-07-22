@@ -54,4 +54,7 @@ printPodcasts config
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
     hasNonTrivialProgress = (> 0.03) . Entry.progress
-    sortedByPodcast = sortOn (gPodderTitleSortKey . EpisodePath.podcast . EpisodeEntry.path)
+    sortedByPodcast = sortOn (
+        (\path -> (gPodderTitleSortKey . EpisodePath.podcast $ path, episode path))
+        . EpisodeEntry.path
+      )
