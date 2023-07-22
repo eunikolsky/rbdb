@@ -26,3 +26,22 @@ spec = do
       let input = ["zulu", "The box", "подкаст", "The chapter", "the Abstraction"]
           expected = ["the Abstraction", "The box", "The chapter", "zulu", "подкаст"]
       in sortOn gPodderTitleSortKey input `shouldBe` expected
+
+    it "can be used to sort podcast episode filepaths" $
+      let input =
+            [ "/podcasts/zulu/23. title.mp3"
+            , "/podcasts/The box/some episode.mp3"
+            , "/podcasts/подкаст/42. сегодня.mp3"
+            , "/podcasts/The chapter/chapter number eight.mp3"
+            , "/podcasts/the Abstraction/Our favorite abstractions.mp3"
+            ]
+
+          expected =
+            [ "/podcasts/the Abstraction/Our favorite abstractions.mp3"
+            , "/podcasts/The box/some episode.mp3"
+            , "/podcasts/The chapter/chapter number eight.mp3"
+            , "/podcasts/zulu/23. title.mp3"
+            , "/podcasts/подкаст/42. сегодня.mp3"
+            ]
+
+      in sortOn gPodderTitleSortKey input `shouldBe` expected
