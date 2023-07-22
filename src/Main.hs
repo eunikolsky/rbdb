@@ -1,7 +1,8 @@
 module Main (main) where
 
 import Config
-import Data.List (isPrefixOf, sortOn)
+import Data.List (sortOn)
+import Data.Text.Lazy qualified as TL
 import Data.Version
 import Options.Applicative
 import Output
@@ -45,7 +46,7 @@ printPodcasts config
   . Database.validEntries
 
   where
-    isPodcast = ("/podcasts" `isPrefixOf`) . Entry.filePath
+    isPodcast = ("/podcasts" `TL.isPrefixOf`) . Entry.filePath
     -- note: this doesn't necessarily mean that a file has been played entirely
     isPlayed = (> 0) . Entry.playCount
     hasNonTrivialProgress = (> 0.03) . Entry.progress

@@ -11,6 +11,7 @@ import Control.Monad.Reader
 import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
+import Data.Text.Lazy qualified as TL
 import Numeric
 import RockboxDB.Entry as Entry
 import RockboxDB.Prelude
@@ -25,7 +26,7 @@ printPodcast
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
-      cfilePath <- colorFilePath filePath
+      cfilePath <- colorFilePath $ TL.unpack filePath
       -- TODO is there a cleaner syntax for this?
       crest <- if showOnlyFilenames then pure [] else do
         cprogress <- colorProgress progress
