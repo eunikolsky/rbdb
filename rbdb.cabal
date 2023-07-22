@@ -57,9 +57,20 @@ library
   exposed-modules:
       Encoding
     , GPodderSort
+    , RockboxDB
+    , RockboxDB.Entry
+    , RockboxDB.IndexEntry
+    , RockboxDB.IndexEntry.Flags
+    , RockboxDB.Prelude
+    , RockboxDB.TagFile.Filename
   build-depends:
       bytestring
+    , containers
+    , directory
+    , filepath
+    , megaparsec
     , text
+    , time
 
 test-suite unit-test
   import:              common-options
@@ -82,21 +93,11 @@ executable rbdb
       Config
     , Output
     , Paths_rbdb
-    , RockboxDB
-    , RockboxDB.Entry
-    , RockboxDB.IndexEntry
-    , RockboxDB.IndexEntry.Flags
-    , RockboxDB.Prelude
-    , RockboxDB.TagFile.Filename
   build-depends:
       rbdb
     , ansi-terminal
-    , bytestring
     , containers
     , filepath
-    , directory
-    , megaparsec
     , mtl
     , optparse-applicative
     , text
-    , time
