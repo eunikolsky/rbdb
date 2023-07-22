@@ -32,11 +32,13 @@ $ rbdb /Volumes/player/.rockbox
 /podcasts/CoRecursive w_ Adam Bell/Story_ JSON vs XML.mp3: 100%, 3 plays
 /podcasts/Criminal/Episode 212_ The Fasting Cure.mp3: 100%, 2 plays
 /podcasts/FLOSS Weekly/FLOSS Weekly 723_ Freedom to Fork - Open Source Communities & Democracy With Seth Frey.mp3: 99%, 1 plays
+/podcasts/The FOSSA Engineering Podcast/Early-Stage Technology Decisions and Regrets.mp3: 100%, 3 plays
 /podcasts/Hacker Public Radio/HPR3830_ Into New Mexico.mp3: 100%, 1 plays
 /podcasts/Headwaters/Becoming _ Stained by History.mp3: 26%, 1 plays
 /podcasts/MapScaping/Geospatial support for humanitarian emergencies.mp3: 75%, 2 plays
 /podcasts/Regular Programming/About Tooling.mp3: 100%, 2 plays
-/podcasts/The FOSSA Engineering Podcast/Early-Stage Technology Decisions and Regrets.mp3: 100%, 3 plays
 /podcasts/This Week in Linux/220_ GNOME 44, Kali Linux, Red Hat 30 Years, Ubuntu Cinnamon, Trisquel 11 & more Linux news!.mp3: 100%, 2 plays
 /podcasts/What Roman Mars Can Learn About Con Law/69- The Mar-a-Lago Warrant.mp3: 100%, 1 plays
 ```
+
+The podcasts are sorted [the way gPodder does it](https://github.com/gpodder/gpodder/blob/74d73231d118caa52661fb16de870e971f6b8164/src/gpodder/model.py#L1094-L1096): case-insensitive, ignoring the "the " prefix if present and replacing certain letter with umlauts to those without (`ö => o`, `ü -> u`, `ä => a`). That's why "The FOSSA Engineering Podcast" appears before "Hacker Public Radio" in the output above.
