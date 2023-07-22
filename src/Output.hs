@@ -11,6 +11,7 @@ import Control.Monad.Reader
 import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
 import Data.Set qualified as Set
+import Data.Text.Lazy qualified as TL
 import EpisodeEntry
 import Numeric
 import RockboxDB.Entry as Entry
@@ -53,7 +54,7 @@ colorProgress progress = progressColor $ show @Int progressPercent <> "%"
 
 colorFilePath :: EpisodePath -> Reader SupportsColor String
 colorFilePath (EpisodePath root podcast episode) = do
-  cpodcast <- blue podcast
+  cpodcast <- blue $ TL.unpack podcast
   cepisode <- brightGreen episode
   pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
 

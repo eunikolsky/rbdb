@@ -12,10 +12,11 @@ import System.FilePath
 
 -- `String`s because it seems to be a waste of resources to convert from the
 -- right `Text` to the necessary `FilePath`, to `Text` to store here, then to
--- `String` again to output with colors.
+-- `String` again to output with colors. But: `podcast` is `Text` because it's
+-- used for sorting, which requires `Text.toLower`. The string types are a mess!
 data EpisodePath = EpisodePath
   { root :: String
-  , podcast :: String
+  , podcast :: Text
   , episode :: String
   }
 
@@ -30,7 +31,7 @@ data EpisodeEntry = EpisodeEntry
 mkEpisodePath :: HasCallStack => Text -> EpisodePath
 mkEpisodePath filePath =
   case splitEpisodePath $ TL.unpack filePath of
-    Just (root, podcast, episode) -> EpisodePath root podcast episode
+    Just (root, podcast, episode) -> EpisodePath root (TL.pack podcast) episode
     Nothing -> error $ "Failed to parse filepath: " <> TL.unpack filePath
 
 -- | Creates an `EpisodeEntry` from a `RockboxDB.Entry`.
