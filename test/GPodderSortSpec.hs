@@ -11,3 +11,6 @@ spec = do
 
     it "returns lowercase input" $
       gPodderTitleSortKey "FooBar 8Я ∆" `shouldBe` "foobar 8я ∆"
+
+    it "removes prefix 'the '" $
+      gPodderTitleSortKey "The foobar" `shouldBe` "foobar"
