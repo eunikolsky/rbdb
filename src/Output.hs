@@ -51,6 +51,7 @@ getProgressColor progressPercent
   | otherwise = brightRed
 
   where
+    brightGreen = withColor (Vivid, Green)
     green = withColor (Dull, Green)
     brightRed = withColor (Vivid, Red)
 
@@ -59,9 +60,6 @@ colorFilePath colorize (EpisodePath root podcast episode) = do
   cpodcast <- colorize $ TL.unpack podcast
   cepisode <- colorize episode
   pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
-
-brightGreen :: String -> Reader SupportsColor String
-brightGreen = withColor (Vivid, Green)
 
 withColor :: (ColorIntensity, Color) -> String -> Reader SupportsColor String
 withColor (intensity, color) s = do
