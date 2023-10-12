@@ -42,7 +42,9 @@ printPodcast
           ]
       pure . singleton . join $ cfilePath : crest
 
-getProgressColor :: Int -> (String -> Reader SupportsColor String)
+type Colorizer = String -> Reader SupportsColor String
+
+getProgressColor :: Int -> Colorizer
 getProgressColor progressPercent = if
   | progressPercent == 100 -> brightGreen
   | progressPercent >= 80 -> green
@@ -52,10 +54,10 @@ getProgressColor progressPercent = if
     green = withColor (Dull, Green)
     brightRed = withColor (Vivid, Red)
 
-colorFilePath :: (String -> Reader SupportsColor String) -> EpisodePath -> Reader SupportsColor String
-colorFilePath color (EpisodePath root podcast episode) = do
-  cpodcast <- color $ TL.unpack podcast
-  cepisode <- color episode
+colorFilePath :: Colorizer -> EpisodePath -> Reader SupportsColor String
+colorFilePath colorize (EpisodePath root podcast episode) = do
+  cpodcast <- colorize $ TL.unpack podcast
+  cepisode <- colorize episode
   pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
 
 brightGreen :: String -> Reader SupportsColor String
