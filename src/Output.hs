@@ -45,10 +45,10 @@ printPodcast
 type Colorizer = String -> Reader SupportsColor String
 
 getProgressColor :: Int -> Colorizer
-getProgressColor progressPercent = if
-  | progressPercent == 100 -> brightGreen
-  | progressPercent >= 80 -> green
-  | otherwise -> brightRed
+getProgressColor progressPercent
+  | progressPercent == 100 = brightGreen
+  | progressPercent >= 80 = green
+  | otherwise = brightRed
 
   where
     green = withColor (Dull, Green)
