@@ -1,6 +1,6 @@
 cabal-version:       3.0
 name:                rbdb
-version:             0.2.0
+version:             0.2.1
 -- synopsis:
 -- description:
 homepage:            https://github.com/githubuser/rbdb#readme
@@ -25,7 +25,6 @@ common common-options
     , DerivingStrategies
     , GeneralizedNewtypeDeriving
     , ImportQualifiedPost
-    , MultiWayIf
     , NamedFieldPuns
     , NumericUnderscores
     , OverloadedStrings

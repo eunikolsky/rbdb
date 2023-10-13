@@ -27,10 +27,12 @@ printPodcast
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
-      cfilePath <- colorFilePath filePath
+      let progressPercent = round $ progress * 100
+          colorProgress = getProgressColor progressPercent
+      cfilePath <- colorFilePath colorProgress filePath
       -- TODO is there a cleaner syntax for this?
       crest <- if showOnlyFilenames then pure [] else do
-        cprogress <- colorProgress progress
+        cprogress <- colorProgress $ show @Int progressPercent <> "%"
         pure
           [ ": "
           , cprogress
@@ -40,28 +42,25 @@ printPodcast
           ]
       pure . singleton . join $ cfilePath : crest
 
-colorProgress :: Double -> Reader SupportsColor String
-colorProgress progress = progressColor $ show @Int progressPercent <> "%"
-  where
-    progressPercent = round $ progress * 100
-    progressColor = if
-      | progressPercent == 100 -> brightGreen
-      | progressPercent >= 80 -> green
-      | otherwise -> brightRed
+type Colorizer = String -> Reader SupportsColor String
 
+getProgressColor :: Int -> Colorizer
+getProgressColor progressPercent
+  | progressPercent >= 96 = brightGreen
+  | progressPercent >= 80 = green
+  | otherwise = brightRed
+
+  where
+    brightGreen = withColor (Vivid, Green)
     green = withColor (Dull, Green)
     brightRed = withColor (Vivid, Red)
 
-colorFilePath :: EpisodePath -> Reader SupportsColor String
-colorFilePath (EpisodePath root podcast episode) = do
-  cpodcast <- blue $ TL.unpack podcast
-  cepisode <- brightGreen episode
-  pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
-
-  where blue = withColor (Dull, Blue)
-
-brightGreen :: String -> Reader SupportsColor String
-brightGreen = withColor (Vivid, Green)
+colorFilePath :: Colorizer -> EpisodePath -> Reader SupportsColor String
+colorFilePath colorize (EpisodePath root podcast episode) = do
+  cpodcast <- colorize $ TL.unpack podcast
+  cepisode <- colorize episode
+  cpathsep <- withColor (Vivid, Magenta) $ [pathSeparator]
+  pure $ intercalate cpathsep [root, cpodcast, cepisode]
 
 withColor :: (ColorIntensity, Color) -> String -> Reader SupportsColor String
 withColor (intensity, color) s = do
