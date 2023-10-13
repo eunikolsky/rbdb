@@ -46,7 +46,7 @@ type Colorizer = String -> Reader SupportsColor String
 
 getProgressColor :: Int -> Colorizer
 getProgressColor progressPercent
-  | progressPercent == 100 = brightGreen
+  | progressPercent >= 96 = brightGreen
   | progressPercent >= 80 = green
   | otherwise = brightRed
 
