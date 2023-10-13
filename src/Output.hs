@@ -59,7 +59,8 @@ colorFilePath :: Colorizer -> EpisodePath -> Reader SupportsColor String
 colorFilePath colorize (EpisodePath root podcast episode) = do
   cpodcast <- colorize $ TL.unpack podcast
   cepisode <- colorize episode
-  pure $ intercalate [pathSeparator] [root, cpodcast, cepisode]
+  cpathsep <- withColor (Vivid, Magenta) $ [pathSeparator]
+  pure $ intercalate cpathsep [root, cpodcast, cepisode]
 
 withColor :: (ColorIntensity, Color) -> String -> Reader SupportsColor String
 withColor (intensity, color) s = do
