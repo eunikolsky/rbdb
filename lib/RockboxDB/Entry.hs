@@ -30,8 +30,10 @@ data Entry = Entry
   -- see the "Supported Tag Fields" table at
   -- https://www.rockbox.org/wiki/DataBase#tagnavi.config_v2.0_Syntax
 
+  , rawProgress :: Double
+  -- ^ played progress; this is a derived field: `playTime / duration`
   , progress :: Double
-  -- ^ played progress, restricted to `[0; 1]`;
+  -- ^ played progress `rawProgress`, restricted to `[0; 1]`;
   -- this is a derived field: `playTime / duration`, no more than `1`;
   -- a simplified version of rockbox's autoscore: `100*playtime/length/playcount`
   -- given that bigger `playTime` doesn't necessarily mean playing later in the
@@ -60,7 +62,8 @@ instance Show Entry where
   show Entry{..} = mconcat
     [ TL.unpack filePath
     , ": duration=", show duration
-    , ", ", show @Int . round $ progress * 100, "% played, "
+    , ", ", show @Int . round $ progress * 100, "% played"
+    , " (raw: ", show rawProgress, ") "
     , show playCount, " plays"
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
@@ -77,7 +80,8 @@ parser (TagFile.Filenames filenameMap) = do
   pure $ do
     filenameOffset <- IndexEntry.maybeFilenameOffset ie
     let duration = msToLength $ IndexEntry.lengthMs ie
-    let playTime = msToLength $ IndexEntry.playTimeMs ie
+        playTime = msToLength $ IndexEntry.playTimeMs ie
+        rawProgress = realToFrac $ playTime / duration
     case filenameMap !? fromIntegral filenameOffset of
       Just filename -> Just $ Entry
         { filePath = Filename.getFilename $ filename
@@ -90,7 +94,8 @@ parser (TagFile.Filenames filenameMap) = do
         , lastElapsed = IndexEntry.lastElapsed ie
         , flags = IndexEntry.flags ie
 
-        , progress = realToFrac (playTime / duration) `noMoreThan` 1
+        , rawProgress
+        , progress = rawProgress `noMoreThan` 1
         }
 
       Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
