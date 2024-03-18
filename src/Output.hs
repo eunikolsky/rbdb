@@ -7,6 +7,7 @@ module Output
 
 import Config
 import Config qualified as UseColor (UseColor(..))
+import Control.Monad (join)
 import Control.Monad.Reader
 import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
@@ -15,7 +16,7 @@ import Data.Text.Lazy qualified as TL
 import EpisodeEntry
 import Numeric
 import RockboxDB.Entry as Entry
-import RockboxDB.Prelude
+import RockboxDB.Prelude hiding (showErrorItem)
 import System.Console.ANSI
 import System.FilePath
 import System.IO
