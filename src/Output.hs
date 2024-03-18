@@ -7,6 +7,7 @@ module Output
 
 import Config
 import Config qualified as UseColor (UseColor(..))
+import Control.Monad (join)
 import Control.Monad.Reader
 import Data.List (intercalate, singleton)
 import Data.List.NonEmpty qualified as NE
