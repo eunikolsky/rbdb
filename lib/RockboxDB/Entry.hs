@@ -67,7 +67,7 @@ instance Show Entry where
     , ", ", show @Int . round $ progress * 100, "% played"
     , " (raw: ", show rawProgress
     , ", autoscore=", show autoscore, ") "
-    , show playCount, " plays"
+    , show playCount, " play", if playCount > 1 then "s" else ""
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
     --, ", modTime=0x", showHex modTime ""
