@@ -20,7 +20,7 @@ data NormalOutputConfig = NormalOutputConfig
   }
 
 -- | Configures the program's output.
-newtype OutputConfig = NormalOutput NormalOutputConfig
+data OutputConfig = NormalOutput NormalOutputConfig | Dump
 
 -- | Program configuration parsed from command arguments.
 data Config = Config
@@ -46,7 +46,7 @@ parser :: Parser Config
 parser = do
   -- the order of options in the generated help is based on the order here
 
-  outputConfig <- NormalOutput <$> normalOutputConfigParser
+  outputConfig <- outputConfigParser
 
   databaseDir <- DatabaseDir <$> strArgument
     ( metavar "ROCKBOX_PATH"
@@ -77,6 +77,18 @@ normalOutputConfigParser = do
     )
 
   pure NormalOutputConfig {showOnlyFilenames, useColor}
+
+dumpParser :: Parser ()
+dumpParser = flag' ()
+  ( long "dump"
+  <> help "Dump valid entries from the parsed database"
+  )
+
+outputConfigParser :: Parser OutputConfig
+outputConfigParser =
+  let maybeDump = Dump <$ dumpParser
+      normalOutputConfig = NormalOutput <$> normalOutputConfigParser
+  in maybeDump <|> normalOutputConfig
 
 enumerate :: (Bounded a, Enum a) => [a]
 enumerate = [minBound..maxBound]

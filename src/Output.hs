@@ -43,6 +43,11 @@ printPodcast
           ]
       pure . singleton . join $ cfilePath : crest
 
+printPodcast
+  Config { outputConfig = Dump }
+  EpisodeEntry { entry }
+  = print entry
+
 type Colorizer = String -> Reader SupportsColor String
 
 getProgressColor :: Int -> Colorizer
