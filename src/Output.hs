@@ -48,8 +48,12 @@ printPodcast
   EpisodeEntry { entry, filesize }
   = putStrLn . mconcat $
     [ show entry
-    , ", file progress=", show @Double $ fromIntegral (lastOffset entry) / fromIntegral filesize
-    ]
+    , ", file progress"
+    ] <> fileProgress filesize
+
+  where
+    fileProgress (Just size) = ["=", show @Double $ fromIntegral (lastOffset entry) / fromIntegral size]
+    fileProgress Nothing = [" unknown"]
 
 type Colorizer = String -> Reader SupportsColor String
 
