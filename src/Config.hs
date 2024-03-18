@@ -1,7 +1,8 @@
-{-# LANGUAGE ApplicativeDo, RecordWildCards #-}
+{-# LANGUAGE ApplicativeDo #-}
 
 module Config
   ( Config(..)
+  , OutputConfig(..)
   , UseColor(..)
   , parser
   ) where
@@ -11,10 +12,13 @@ import Data.List (intercalate)
 import Options.Applicative
 import RockboxDB as Database
 
+-- | Configures the program's output.
+newtype OutputConfig = OutputConfig { showOnlyFilenames :: Bool }
+
 -- | Program configuration parsed from command arguments.
 data Config = Config
   { databaseDir :: !DatabaseDir
-  , showOnlyFilenames :: !Bool
+  , outputConfig :: !OutputConfig
   , useColor :: !UseColor
   }
 
@@ -58,7 +62,9 @@ parser = do
     <> help "Path to the rockbox database directory (with `database_*.tcd`)"
     )
 
-  pure Config {..}
+  -- separate `let outputConfig = OutputConfig showOnlyFilenames` line doesn't
+  -- work due to `No instance for ‘Monad Parser’ arising from a do statement`
+  pure Config {useColor, databaseDir, outputConfig = OutputConfig showOnlyFilenames}
 
 enumerate :: (Bounded a, Enum a) => [a]
 enumerate = [minBound..maxBound]

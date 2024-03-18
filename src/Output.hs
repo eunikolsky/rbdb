@@ -23,7 +23,7 @@ import System.IO
 
 printPodcast :: Config -> EpisodeEntry -> IO ()
 printPodcast
-  Config { showOnlyFilenames, useColor }
+  Config { outputConfig = OutputConfig { showOnlyFilenames }, useColor }
   EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
   = do
     supportsColor <- determineColorSupport useColor
