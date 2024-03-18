@@ -45,8 +45,11 @@ printPodcast
 
 printPodcast
   Config { outputConfig = Dump }
-  EpisodeEntry { entry }
-  = print entry
+  EpisodeEntry { entry, filesize }
+  = putStrLn . mconcat $
+    [ show entry
+    , ", file progress=", show @Double $ fromIntegral (lastOffset entry) / fromIntegral filesize
+    ]
 
 type Colorizer = String -> Reader SupportsColor String
 

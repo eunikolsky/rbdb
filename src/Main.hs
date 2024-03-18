@@ -13,6 +13,7 @@ import Paths_rbdb (version)
 import RockboxDB as Database
 import RockboxDB.Entry as Entry
 import System.Exit
+import System.FilePath (takeDirectory)
 
 main :: IO ()
 main = do
@@ -42,12 +43,13 @@ parseDatabase Config { databaseDir = dir } = do
     Left errBundle -> die $ showErrorBundle errBundle
 
 printPodcasts :: Config -> Database -> IO ()
-printPodcasts config
-  = mapM_ (printPodcast config)
-  . sortedByPodcast
-  . fmap mkEpisodeEntry
-  . filter (\e -> all ($ e) [hasNonTrivialProgress, isPlayed, isPodcast])
-  . Database.validEntries
+printPodcasts config db = do
+  entries <-
+    traverse (mkEpisodeEntry mountDir)
+    . filter (\e -> all ($ e) [hasNonTrivialProgress, isPlayed, isPodcast])
+    . Database.validEntries
+    $ db
+  mapM_ (printPodcast config) $ sortedByPodcast entries
 
   where
     isPodcast = ("/podcasts" `TL.isPrefixOf`) . Entry.filePath
@@ -58,3 +60,4 @@ printPodcasts config
         (\path -> (gPodderTitleSortKey . EpisodePath.podcast $ path, episode path))
         . EpisodeEntry.path
       )
+    mountDir = takeDirectory . takeDirectory . (<> "/") . getDatabaseDir . databaseDir $ config

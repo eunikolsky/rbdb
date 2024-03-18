@@ -8,6 +8,7 @@ import Data.Text.Lazy (Text)
 import Data.Text.Lazy qualified as TL
 import GHC.Stack (HasCallStack)
 import RockboxDB.Entry qualified as RockboxDB
+import System.Directory
 import System.FilePath
 
 -- `String`s because it seems to be a waste of resources to convert from the
@@ -26,6 +27,7 @@ data EpisodePath = EpisodePath
 data EpisodeEntry = EpisodeEntry
   { path :: !EpisodePath
   , entry :: !RockboxDB.Entry
+  , filesize :: !Integer
   }
 
 -- | Parses a filepath into `EpisodePath`.
@@ -36,11 +38,17 @@ mkEpisodePath filePath =
     Nothing -> error $ "Failed to parse filepath: " <> TL.unpack filePath
 
 -- | Creates an `EpisodeEntry` from a `RockboxDB.Entry`.
-mkEpisodeEntry :: RockboxDB.Entry -> EpisodeEntry
-mkEpisodeEntry entry = EpisodeEntry
-  { path = mkEpisodePath $ RockboxDB.filePath entry
-  , entry
-  }
+mkEpisodeEntry :: FilePath -> RockboxDB.Entry -> IO EpisodeEntry
+mkEpisodeEntry mountDir entry = do
+  let filepath = RockboxDB.filePath entry
+  -- note: `<>` is used instead of `</>` because filepaths in the rockbox db
+  -- start with `/`, which causes `</>` to return only the second argument
+  filesize <- getFileSize $ mountDir <> TL.unpack filepath
+  pure EpisodeEntry
+    { path = mkEpisodePath filepath
+    , entry
+    , filesize
+    }
 
 -- | Splits the standard (for me) filepath like `/podcasts/podcast/episode.mp3` into
 -- three parts: `("/podcasts", "podcast", "episode.mp3")`; returns `Nothing`
