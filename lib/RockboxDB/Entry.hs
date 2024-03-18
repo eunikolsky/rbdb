@@ -58,9 +58,9 @@ data Entry = Entry
 
 instance Show Entry where
   show Entry{..} = mconcat
-    [ "File ", TL.unpack filePath
-    , " (", show duration
-    , ", ", show @Int . round $ progress * 100, "% played): "
+    [ TL.unpack filePath
+    , ": duration=", show duration
+    , ", ", show @Int . round $ progress * 100, "% played, "
     , show playCount, " plays"
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
