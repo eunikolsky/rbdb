@@ -30,12 +30,14 @@ data Entry = Entry
   -- see the "Supported Tag Fields" table at
   -- https://www.rockbox.org/wiki/DataBase#tagnavi.config_v2.0_Syntax
 
+  , autoscore :: Double
+  -- ^ "Autoscore calculated as follows: 100*playtime/length/playcount "
   , rawProgress :: Double
   -- ^ played progress; this is a derived field: `playTime / duration`
   , progress :: Double
   -- ^ played progress `rawProgress`, restricted to `[0; 1]`;
   -- this is a derived field: `playTime / duration`, no more than `1`;
-  -- a simplified version of rockbox's autoscore: `100*playtime/length/playcount`
+  -- a simplified version of rockbox's autoscore;
   -- given that bigger `playTime` doesn't necessarily mean playing later in the
   -- file (it can mean replaying the beginning again and again), this field is
   -- only an approximation of the real played progress
@@ -63,7 +65,8 @@ instance Show Entry where
     [ TL.unpack filePath
     , ": duration=", show duration
     , ", ", show @Int . round $ progress * 100, "% played"
-    , " (raw: ", show rawProgress, ") "
+    , " (raw: ", show rawProgress
+    , ", autoscore=", show autoscore, ") "
     , show playCount, " plays"
     , ", playTime=", show playTime
     , ", playOrder=", show playOrder
@@ -96,6 +99,7 @@ parser (TagFile.Filenames filenameMap) = do
 
         , rawProgress
         , progress = rawProgress `noMoreThan` 1
+        , autoscore = 100 * fromIntegral (IndexEntry.playTimeMs ie) / fromIntegral (IndexEntry.lengthMs ie) / fromIntegral (IndexEntry.playCount ie)
         }
 
       Nothing -> fail $ "Can't find filename at offset " <> show filenameOffset
