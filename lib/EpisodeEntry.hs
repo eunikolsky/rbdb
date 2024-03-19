@@ -1,9 +1,11 @@
 module EpisodeEntry
   ( EpisodeEntry(..)
   , EpisodePath(..)
+  , fileProgress
   , mkEpisodeEntry
   ) where
 
+import Data.Functor
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy qualified as TL
 import GHC.Stack (HasCallStack)
@@ -51,6 +53,19 @@ mkEpisodeEntry mountDir entry = do
     , entry
     , filesize
     }
+
+-- | Returns the progress based on the entry's `lastOffset` and filesize if
+-- present. If the file was played (`playCount` > 0) and its `lastOffset` is `0`,
+-- it means the file was played to the end, so the progress is `1`, not `0`.
+fileProgress :: EpisodeEntry -> Maybe Double
+fileProgress EpisodeEntry { entry, filesize } =
+  if fileWasPlayed && noLastOffset
+  then Just 1
+  else filesize <&> \size -> fromIntegral (RockboxDB.lastOffset entry) / fromIntegral size
+
+  where
+    fileWasPlayed = RockboxDB.playCount entry > 0
+    noLastOffset = RockboxDB.lastOffset entry == 0
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM predM thenM elseM = do

@@ -24,7 +24,7 @@ import System.IO
 printPodcast :: Config -> EpisodeEntry -> IO ()
 printPodcast
   Config { outputConfig = NormalOutput NormalOutputConfig { showOnlyFilenames, useColor } }
-  EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
+  episodeEntry@EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
@@ -38,21 +38,18 @@ printPodcast
           , cprogress
           , ", "
           , show playCount
-          , " plays"
+          , " plays, file "
+          , maybe " progress unknown" ((<> " played") . toUserProgress) $ fileProgress episodeEntry
           ]
       pure . singleton . join $ cfilePath : crest
 
 printPodcast
   Config { outputConfig = Dump }
-  EpisodeEntry { entry, filesize }
+  episodeEntry@EpisodeEntry { entry }
   = putStrLn . mconcat $
     [ show entry
     , ", file progress"
-    ] <> fileProgress filesize
-
-  where
-    fileProgress (Just size) = ["=", show @Double $ fromIntegral (lastOffset entry) / fromIntegral size]
-    fileProgress Nothing = [" unknown"]
+    ] <> maybe [" unknown"] (\p -> ["=", show p]) (fileProgress episodeEntry)
 
 type Colorizer = String -> Reader SupportsColor String
 
