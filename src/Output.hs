@@ -29,7 +29,7 @@ printPodcast
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
       let progressPercent = round $ progress * 100
-          colorProgress = getProgressColor progressPercent
+          colorProgress = getProgressColor progress
       cfilePath <- colorFilePath colorProgress filePath
       -- TODO is there a cleaner syntax for this?
       crest <- if showOnlyFilenames then pure [] else do
@@ -57,10 +57,10 @@ printPodcast
 
 type Colorizer = String -> Reader SupportsColor String
 
-getProgressColor :: Int -> Colorizer
-getProgressColor progressPercent
-  | progressPercent >= 96 = brightGreen
-  | progressPercent >= 80 = green
+getProgressColor :: Double -> Colorizer
+getProgressColor progress
+  | progress >= 0.96 = brightGreen
+  | progress >= 0.8 = green
   | otherwise = brightRed
 
   where
