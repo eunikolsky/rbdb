@@ -28,12 +28,11 @@ printPodcast
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
-      let progressPercent = round $ progress * 100
-          colorProgress = getProgressColor progress
+      let colorProgress = getProgressColor progress
       cfilePath <- colorFilePath colorProgress filePath
       -- TODO is there a cleaner syntax for this?
       crest <- if showOnlyFilenames then pure [] else do
-        cprogress <- colorProgress $ show @Int progressPercent <> "%"
+        cprogress <- colorProgress $ toUserProgress progress
         pure
           [ ": "
           , cprogress
