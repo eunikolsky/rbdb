@@ -28,33 +28,32 @@ The program requires the path to a rockbox database, which is a directory with `
 
 ```bash
 $ rbdb /Volumes/player/.rockbox
-/podcasts/99% Invisible/530- The Panopticon Effect.mp3: 26%, 1 plays
-/podcasts/Accidental Tech Podcast/529_ The Cycles of Marco.mp3: 100%, 4 plays
-/podcasts/CoRecursive w_ Adam Bell/Story_ JSON vs XML.mp3: 100%, 3 plays
-/podcasts/Criminal/Episode 212_ The Fasting Cure.mp3: 100%, 2 plays
-/podcasts/FLOSS Weekly/FLOSS Weekly 723_ Freedom to Fork - Open Source Communities & Democracy With Seth Frey.mp3: 99%, 1 plays
-/podcasts/The FOSSA Engineering Podcast/Early-Stage Technology Decisions and Regrets.mp3: 100%, 3 plays
-/podcasts/Hacker Public Radio/HPR3830_ Into New Mexico.mp3: 100%, 1 plays
-/podcasts/Headwaters/Becoming _ Stained by History.mp3: 26%, 1 plays
-/podcasts/MapScaping/Geospatial support for humanitarian emergencies.mp3: 75%, 2 plays
-/podcasts/Regular Programming/About Tooling.mp3: 100%, 2 plays
-/podcasts/This Week in Linux/220_ GNOME 44, Kali Linux, Red Hat 30 Years, Ubuntu Cinnamon, Trisquel 11 & more Linux news!.mp3: 100%, 2 plays
-/podcasts/What Roman Mars Can Learn About Con Law/69- The Mar-a-Lago Warrant.mp3: 100%, 1 plays
+/podcasts/The Amp Hour Electronics Podcast/#661 – Blogging Electronics with Pallav Aggarwal.mp3: 27%, 1 plays, file 26% played
+/podcasts/Darknet Diaries Bonus Episodes/Bonus Episode #1 - Wes.mp3: 100%, 1 plays, file 100% played
+/podcasts/Hacker Public Radio/HPR4077_ FFMPEG Series_ Joining and Splitting files.mp3: 100%, 2 plays, file 100% played
+/podcasts/Hacker Public Radio/HPR4078_ Learning to read music, part two_ pitch.mp3: 34%, 1 plays, file 32% played
+/podcasts/Hanselminutes/Our Retro FPGA future powered by Jose Tejada (JOTEGO).mp3: 100%, 1 plays, file 99% played
+/podcasts/The Haskell Interlude/42 _ Jezen Thomas.mp3: 100%, 2 plays, file 100% played
+/podcasts/Headwaters/Climate and Community with Mike Durglo, Jr.mp3: 100%, 2 plays, file 96% played
+/podcasts/Security Now/SN 966_ Morris The Second - Voyager 1, The Web Turns 35.mp3: 100%, 3 plays, file 100% played
+/podcasts/Soft Skills Engineering/Episode 394_ Scrum master, weapons master and minimum tenure to not look bad.mp3: 100%, 1 plays, file 100% played
+/podcasts/Software Engineering Radio/SE Radio 597_ Coral Calero Muñoz and Félix García on Green Software.mp3: 33%, 1 plays, file 33% played
 ```
 
-The podcasts are sorted [the way gPodder does it](https://github.com/gpodder/gpodder/blob/74d73231d118caa52661fb16de870e971f6b8164/src/gpodder/model.py#L1094-L1096): case-insensitive, ignoring the "the " prefix if present and replacing certain letter with umlauts to those without (`ö => o`, `ü -> u`, `ä => a`). That's why "The FOSSA Engineering Podcast" appears before "Hacker Public Radio" in the output above.
+The podcasts are sorted [the way gPodder does it](https://github.com/gpodder/gpodder/blob/74d73231d118caa52661fb16de870e971f6b8164/src/gpodder/model.py#L1094-L1096): case-insensitive, ignoring the "the " prefix if present and replacing certain letter with umlauts to those without (`ö => o`, `ü -> u`, `ä => a`). That's why "The Haskell Interlude" appears before "Headwaters" in the output above.
 
 The `--dump` option shows more information about the valid entries from the parsed database:
 
 ```bash
 $ rbdb --dump /Volumes/player/.rockbox
-/podcasts/99% Invisible/571- You Are What You Watch.mp3: duration=1875.957s, 97% played (raw: 0.965871285962, autoscore=96.58712859623115) 1 play, playTime=1811.933s, playOrder=996, lastOffset=28847279, lastElapsed=1796933, flags=4
-/podcasts/Darknet Diaries/143_ Jim Hates Scams.mp3: duration=4195.892s, 100% played (raw: 1.272376886726, autoscore=63.61884433631752) 2 plays, playTime=5338.756s, playOrder=994, lastOffset=67199308, lastElapsed=4192382, flags=4
-/podcasts/The Haskell Interlude/41_ Moritz Angermann.mp3: duration=3971.004s, 100% played (raw: 1.908688331716, autoscore=95.43441658583069) 2 plays, playTime=7579.409s, playOrder=979, lastOffset=47527874, lastElapsed=3959302, flags=4
-/podcasts/MapScaping/Introduction To LIDAR & Point Clouds.mp3: duration=2932.741s, 100% played (raw: 1.085288472456, autoscore=54.264423622815656) 2 plays, playTime=3182.87s, playOrder=990, lastOffset=0, lastElapsed=0, flags=4
-/podcasts/Regular Programming/About Developing Speed.mp3: duration=2285.766s, 100% played (raw: 1.0, autoscore=100.0) 1 play, playTime=2285.766s, playOrder=1002, lastOffset=0, lastElapsed=0, flags=4
-/podcasts/Soft Skills Engineering/Episode 393_ Soft skills for interns and intern to QA.mp3: duration=1627.872s, 100% played (raw: 1.092113507695, autoscore=54.60567538479684) 2 plays, playTime=1777.821s, playOrder=985, lastOffset=0, lastElapsed=0, flags=4
-/podcasts/Software Engineering Radio/SE Radio 589_ Zac Hatfield-Dodds on Property-Based Testing in Python.mp3: duration=3406.613s, 73% played (raw: 0.729546620059, autoscore=72.95466200592789) 1 play, playTime=2485.283s, playOrder=999, lastOffset=59501530, lastElapsed=2470283, flags=4
-/podcasts/Радио-Т/Радио-Т 901.mp3: duration=6033.005s, 24% played (raw: 0.240602817335, autoscore=24.060281733563954) 1 play, playTime=1451.558s, playOrder=1004, lastOffset=23024032, lastElapsed=1436558, flags=4
-/podcasts/Радио-Т Поток/2024-03-16 22_03_04 +0200 _ Радио-Т 901.mp3: duration=565.655s, 100% played (raw: 1.0, autoscore=100.0) 1 play, playTime=565.655s, playOrder=980, lastOffset=0, lastElapsed=0, flags=4
+/podcasts/The Amp Hour Electronics Podcast/#661 – Blogging Electronics with Pallav Aggarwal.mp3: duration=3812.856s, 27% played (raw: 0.266603302091, autoscore=26.66033020916604) 1 play, playTime=1016.52s, playOrder=1042, lastOffset=15822883, lastElapsed=1001520, flags=4, file progress=0.26293896346045326
+/podcasts/Darknet Diaries Bonus Episodes/Bonus Episode #1 - Wes.mp3: duration=2178.638s, 100% played (raw: 1.0, autoscore=100.0) 1 play, playTime=2178.638s, playOrder=1026, lastOffset=0, lastElapsed=0, flags=4, file progress=1.0
+/podcasts/Hacker Public Radio/HPR4077_ FFMPEG Series_ Joining and Splitting files.mp3: duration=642.744s, 100% played (raw: 1.103481323824, autoscore=55.174066191205206) 2 plays, playTime=709.256s, playOrder=1023, lastOffset=0, lastElapsed=0, flags=4, file progress=1.0
+/podcasts/Hacker Public Radio/HPR4078_ Learning to read music, part two_ pitch.mp3: duration=906.192s, 34% played (raw: 0.336220138778, autoscore=33.622013877853696) 1 play, playTime=304.68s, playOrder=1024, lastOffset=2319144, lastElapsed=289680, flags=4, file progress=0.31983005239425993
+/podcasts/Hanselminutes/Our Retro FPGA future powered by Jose Tejada (JOTEGO).mp3: duration=1968.248s, 100% played (raw: 0.998006348793, autoscore=99.80063487934447) 1 play, playTime=1964.324s, playOrder=1032, lastOffset=31275037, lastElapsed=1949324, flags=4, file progress=0.9904434277276265
+/podcasts/The Haskell Interlude/42 _ Jezen Thomas.mp3: duration=3062.831s, 100% played (raw: 1.318571935572, autoscore=65.92859677860123) 2 plays, playTime=4038.563s, playOrder=1020, lastOffset=36638569, lastElapsed=3051860, flags=4, file progress=0.9964414988077183
+/podcasts/Headwaters/Climate and Community with Mike Durglo, Jr.mp3: duration=1895.131s, 100% played (raw: 1.871429996132, autoscore=93.57149980660968) 2 plays, playTime=3546.605s, playOrder=1041, lastOffset=43909505, lastElapsed=1827827, flags=4, file progress=0.964535300061506
+/podcasts/Security Now/SN 966_ Morris The Second - Voyager 1, The Web Turns 35.mp3: duration=7668.36s, 100% played (raw: 1.65099291113, autoscore=55.03309703769776) 3 plays, playTime=12660.408s, playOrder=1030, lastOffset=0, lastElapsed=0, flags=4, file progress=1.0
+/podcasts/Soft Skills Engineering/Episode 394_ Scrum master, weapons master and minimum tenure to not look bad.mp3: duration=1760.914s, 100% played (raw: 1.0, autoscore=100.0) 1 play, playTime=1760.914s, playOrder=1036, lastOffset=0, lastElapsed=0, flags=4, file progress=1.0
+/podcasts/Software Engineering Radio/SE Radio 597_ Coral Calero Muñoz and Félix García on Green Software.mp3: duration=3829.237s, 33% played (raw: 0.328555270932, autoscore=32.855527093256434) 1 play, playTime=1258.116s, playOrder=1038, lastOffset=20193571, lastElapsed=1243116, flags=4, file progress=0.32797083508469216
 ```
