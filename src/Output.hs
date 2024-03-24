@@ -24,36 +24,39 @@ import System.IO
 printPodcast :: Config -> EpisodeEntry -> IO ()
 printPodcast
   Config { outputConfig = NormalOutput NormalOutputConfig { showOnlyFilenames, useColor } }
-  EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
+  episodeEntry@EpisodeEntry { path = filePath, entry = Entry { progress, playCount } }
   = do
     supportsColor <- determineColorSupport useColor
     mapM_ putStrLn . flip runReader supportsColor $ do
-      let progressPercent = round $ progress * 100
-          colorProgress = getProgressColor progressPercent
+      let colorProgress = getProgressColor progress
       cfilePath <- colorFilePath colorProgress filePath
       -- TODO is there a cleaner syntax for this?
       crest <- if showOnlyFilenames then pure [] else do
-        cprogress <- colorProgress $ show @Int progressPercent <> "%"
+        cprogress <- colorProgress $ toUserProgress progress
         pure
           [ ": "
           , cprogress
           , ", "
           , show playCount
-          , " plays"
+          , " plays, file "
+          , maybe " progress unknown" ((<> " played") . toUserProgress) $ fileProgress episodeEntry
           ]
       pure . singleton . join $ cfilePath : crest
 
 printPodcast
   Config { outputConfig = Dump }
-  EpisodeEntry { entry }
-  = print entry
+  episodeEntry@EpisodeEntry { entry }
+  = putStrLn . mconcat $
+    [ show entry
+    , ", file progress"
+    ] <> maybe [" unknown"] (\p -> ["=", show p]) (fileProgress episodeEntry)
 
 type Colorizer = String -> Reader SupportsColor String
 
-getProgressColor :: Int -> Colorizer
-getProgressColor progressPercent
-  | progressPercent >= 96 = brightGreen
-  | progressPercent >= 80 = green
+getProgressColor :: Double -> Colorizer
+getProgressColor progress
+  | progress >= 0.96 = brightGreen
+  | progress >= 0.8 = green
   | otherwise = brightRed
 
   where

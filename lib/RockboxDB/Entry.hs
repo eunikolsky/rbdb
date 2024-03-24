@@ -3,6 +3,7 @@
 module RockboxDB.Entry
   ( Entry(..)
   , parser
+  , toUserProgress
   ) where
 
 import Data.IntMap ((!?))
@@ -15,6 +16,10 @@ import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
 import RockboxDB.Prelude
 import RockboxDB.TagFile.Filename qualified as Filename (getFilename)
 import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
+
+-- | Formats a progress `[0; 1]` for the user, e.g. `0.421093` => `42%`.
+toUserProgress :: Double -> String
+toUserProgress = (<> "%") . show @Int . round . (* 100)
 
 -- | Parsed valid rockbox database entry.
 data Entry = Entry
@@ -64,7 +69,7 @@ instance Show Entry where
   show Entry{..} = mconcat
     [ TL.unpack filePath
     , ": duration=", show duration
-    , ", ", show @Int . round $ progress * 100, "% played"
+    , ", ", toUserProgress progress, " played"
     , " (raw: ", show rawProgress
     , ", autoscore=", show autoscore, ") "
     , show playCount, " play", if playCount > 1 then "s" else ""

@@ -21,7 +21,7 @@ newtype Database = Database { validEntries :: [Entry] }
 
 -- | Directory of rockbox database, which should contain at least
 -- `database_idx.tcd` and `database_4.tcd`.
-newtype DatabaseDir = DatabaseDir FilePath
+newtype DatabaseDir = DatabaseDir { getDatabaseDir :: FilePath }
 
 -- | Parses the rockbox database from the given directory.
 parse :: DatabaseDir -> IO (ParseErrorOr Database)
