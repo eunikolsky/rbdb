@@ -1,7 +1,9 @@
-{-# LANGUAGE ApplicativeDo, RecordWildCards #-}
+{-# LANGUAGE ApplicativeDo #-}
 
 module Config
   ( Config(..)
+  , NormalOutputConfig(..)
+  , OutputConfig(..)
   , UseColor(..)
   , parser
   ) where
@@ -11,11 +13,19 @@ import Data.List (intercalate)
 import Options.Applicative
 import RockboxDB as Database
 
+-- | Configures the program's regular output.
+data NormalOutputConfig = NormalOutputConfig
+  { showOnlyFilenames :: !Bool
+  , useColor :: !UseColor
+  }
+
+-- | Configures the program's output.
+data OutputConfig = NormalOutput NormalOutputConfig | Dump
+
 -- | Program configuration parsed from command arguments.
 data Config = Config
   { databaseDir :: !DatabaseDir
-  , showOnlyFilenames :: !Bool
-  , useColor :: !UseColor
+  , outputConfig :: !OutputConfig
   }
 
 data UseColor
@@ -36,6 +46,19 @@ parser :: Parser Config
 parser = do
   -- the order of options in the generated help is based on the order here
 
+  outputConfig <- outputConfigParser
+
+  databaseDir <- DatabaseDir <$> strArgument
+    ( metavar "ROCKBOX_PATH"
+    <> help "Path to the rockbox database directory (with `database_*.tcd`)"
+    )
+
+  -- separate `let outputConfig = OutputConfig showOnlyFilenames` line doesn't
+  -- work due to `No instance for ‘Monad Parser’ arising from a do statement`
+  pure Config {databaseDir, outputConfig}
+
+normalOutputConfigParser :: Parser NormalOutputConfig
+normalOutputConfigParser = do
   showOnlyFilenames <- flag False True
     ( short 'f'
     <> long "filename-only"
@@ -53,12 +76,19 @@ parser = do
     <> showDefaultWith (fmap toLower . show)
     )
 
-  databaseDir <- DatabaseDir <$> strArgument
-    ( metavar "ROCKBOX_PATH"
-    <> help "Path to the rockbox database directory (with `database_*.tcd`)"
-    )
+  pure NormalOutputConfig {showOnlyFilenames, useColor}
 
-  pure Config {..}
+dumpParser :: Parser ()
+dumpParser = flag' ()
+  ( long "dump"
+  <> help "Dump valid entries from the parsed database"
+  )
+
+outputConfigParser :: Parser OutputConfig
+outputConfigParser =
+  let maybeDump = Dump <$ dumpParser
+      normalOutputConfig = NormalOutput <$> normalOutputConfigParser
+  in maybeDump <|> normalOutputConfig
 
 enumerate :: (Bounded a, Enum a) => [a]
 enumerate = [minBound..maxBound]
