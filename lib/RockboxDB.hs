@@ -5,6 +5,8 @@ module RockboxDB
   ) where
 
 import Control.Monad
+import Control.Monad.Except
+import Control.Monad.IO.Class
 import Data.ByteString qualified as BS
 import Data.Maybe
 import RockboxDB.Entry (Entry)
@@ -12,6 +14,7 @@ import RockboxDB.Entry qualified as Entry (parser)
 import RockboxDB.Prelude
 import RockboxDB.TagFile.Filename qualified as Filename (parser)
 import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..), headerSize)
+import RockboxDB.Version
 import System.FilePath
 import System.Directory
 
@@ -31,16 +34,19 @@ parse dbDir@(DatabaseDir dir) = do
 
   indexBytes <- BS.readFile indexFile
   filenameBytes <- BS.readFile filenameTagFile
-  expectedDataSize <- getExpectedDataSize dbDir
 
-  pure $ do -- in `ParseErrorOr`
-    filenames <- runParser Filename.parser filenameTagFile filenameBytes
-    runParser (parser expectedDataSize filenames) indexFile indexBytes
+  runExceptT $ do -- in `ExceptT ParseError IO`
+    dbVersion <- liftEither $ runParser versionParser indexFile indexBytes
+    expectedDataSize <- liftIO $ getExpectedDataSize dbVersion dbDir
+    liftEither $ do
+      filenames <- runParser Filename.parser filenameTagFile filenameBytes
+      runParser (parser expectedDataSize filenames) indexFile indexBytes
 
 -- The parser isn't exported because the database is split into multiple files.
 parser :: Int -> TagFile.Filenames -> Parser Database
 parser expectedDataSize filenames = do
-  _magic <- string "\x0f\x48\x43\x54"
+  -- already parsed by `dbVersionParser`
+  _magic <- word32
   dataSize <- word32
   when (expectedDataSize /= fromIntegral dataSize) $ fail $ mconcat
     ["Unexpected data size ", show dataSize, ", should be ", show expectedDataSize]
@@ -63,12 +69,12 @@ parser expectedDataSize filenames = do
 -- https://www.rockbox.org/wiki/TagcacheDBFormat#Index_file_format says it's
 -- the number of bytes after the header, but it's more complicated than that:
 -- https://www.rockbox.org/mail/archive/rockbox-dev-archive-2008-10/0070.shtml
-getExpectedDataSize :: DatabaseDir -> IO Int
-getExpectedDataSize (DatabaseDir dir) = do
+getExpectedDataSize :: Version -> DatabaseDir -> IO Int
+getExpectedDataSize version (DatabaseDir dir) = do
   indexFileSize <- getFileSize $ dir </> "database_idx.tcd"
   let tagFiles =
         [ dir </> "database_" <> show @Int i <.> "tcd"
-        | i <- [0..8]
+        | i <- [0..numFiles version - 1]
         , i /= 4
         ]
   tagFilesSizes <- traverse getFileSize tagFiles

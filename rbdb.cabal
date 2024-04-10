@@ -63,12 +63,14 @@ library
     , RockboxDB.IndexEntry.Flags
     , RockboxDB.Prelude
     , RockboxDB.TagFile.Filename
+    , RockboxDB.Version
   build-depends:
       bytestring
     , containers
     , directory
     , filepath
     , megaparsec
+    , mtl
     , text
     , time
 
