@@ -68,7 +68,8 @@ getExpectedDataSize (DatabaseDir dir) = do
   indexFileSize <- getFileSize $ dir </> "database_idx.tcd"
   let tagFiles =
         [ dir </> "database_" <> show @Int i <.> "tcd"
-        | i <- [0..3] <> [5..8]
+        | i <- [0..8]
+        , i /= 4
         ]
   tagFilesSizes <- traverse getFileSize tagFiles
   let headerSizes = length tagFiles * TagFile.headerSize
