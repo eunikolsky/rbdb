@@ -12,6 +12,7 @@ import Data.IntMap.Strict qualified as IntMap
 import Data.Text.Lazy (Text)
 import Encoding
 import RockboxDB.Prelude
+import RockboxDB.Version
 
 newtype Filename = Filename { getFilename :: Text }
 
@@ -22,7 +23,7 @@ newtype Filenames = Filenames (IntMap Filename)
 parser :: Parser Filenames
 parser = do
   -- TODO dedup
-  _magic <- string "\x0f\x48\x43\x54"
+  _version <- versionParser
   _dataSize <- word32
   numEntries <- fromIntegral <$> word32
 
