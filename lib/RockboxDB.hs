@@ -45,8 +45,7 @@ parse dbDir@(DatabaseDir dir) = do
 -- The parser isn't exported because the database is split into multiple files.
 parser :: Int -> TagFile.Filenames -> Parser Database
 parser expectedDataSize filenames = do
-  -- already parsed by `dbVersionParser`
-  _magic <- word32
+  version <- versionParser
   dataSize <- word32
   when (expectedDataSize /= fromIntegral dataSize) $ fail $ mconcat
     ["Unexpected data size ", show dataSize, ", should be ", show expectedDataSize]
@@ -57,7 +56,7 @@ parser expectedDataSize filenames = do
   _isDirty <- word32
 
   validEntries <- fmap catMaybes . count (fromIntegral numEntries) $
-    Entry.parser filenames
+    Entry.parser version filenames
 
   eof
 
@@ -74,7 +73,7 @@ getExpectedDataSize version (DatabaseDir dir) = do
   indexFileSize <- getFileSize $ dir </> "database_idx.tcd"
   let tagFiles =
         [ dir </> "database_" <> show @Int i <.> "tcd"
-        | i <- [0..numFiles version - 1]
+        | i <- databaseFileIndexes version
         , i /= 4
         ]
   tagFilesSizes <- traverse getFileSize tagFiles
