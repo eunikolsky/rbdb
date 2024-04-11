@@ -16,6 +16,7 @@ import RockboxDB.IndexEntry.Flags qualified as IndexEntry (Flags)
 import RockboxDB.Prelude
 import RockboxDB.TagFile.Filename qualified as Filename (getFilename)
 import RockboxDB.TagFile.Filename qualified as TagFile (Filenames(..))
+import RockboxDB.Version
 
 -- | Formats a progress `[0; 1]` for the user, e.g. `0.421093` => `42%`.
 toUserProgress :: Double -> String
@@ -82,9 +83,9 @@ instance Show Entry where
     ]
 
 -- returns Nothing if the entry is invalid (was deleted)
-parser :: TagFile.Filenames -> Parser (Maybe Entry)
-parser (TagFile.Filenames filenameMap) = do
-  ie <- IndexEntry.parser
+parser :: Version -> TagFile.Filenames -> Parser (Maybe Entry)
+parser version (TagFile.Filenames filenameMap) = do
+  ie <- IndexEntry.parser version
   pure $ do
     filenameOffset <- IndexEntry.maybeFilenameOffset ie
     let duration = msToLength $ IndexEntry.lengthMs ie

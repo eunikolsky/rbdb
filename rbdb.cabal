@@ -1,6 +1,6 @@
 cabal-version:       3.0
 name:                rbdb
-version:             0.3.0
+version:             0.4.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/githubuser/rbdb#readme
@@ -63,12 +63,14 @@ library
     , RockboxDB.IndexEntry.Flags
     , RockboxDB.Prelude
     , RockboxDB.TagFile.Filename
+    , RockboxDB.Version
   build-depends:
       bytestring
     , containers
     , directory
     , filepath
     , megaparsec
+    , mtl
     , text
     , time
 

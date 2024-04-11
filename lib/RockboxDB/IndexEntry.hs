@@ -7,6 +7,7 @@ import Control.Monad
 import RockboxDB.IndexEntry.Flags
 import RockboxDB.IndexEntry.Flags qualified as Flags
 import RockboxDB.Prelude
+import RockboxDB.Version
 
 -- | Parsed entry from rockbox database's index file. It's not a type of the
 -- final database entry visible to the user because it includes raw data
@@ -24,11 +25,12 @@ data IndexEntry = IndexEntry
   , lastElapsed :: Word32
   }
 
-parser :: Parser IndexEntry
-parser = do
+parser :: Version -> Parser IndexEntry
+parser version = do
   skip 4
   filenameOffset <- word32
   skip 8
+  when (version == DBNext) $ skip 1
   lengthMs <- word32
   playCount <- word32
   skip 1
